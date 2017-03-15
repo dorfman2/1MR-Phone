@@ -12,6 +12,7 @@ GPIO.setup(24, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 c=0
 last = 1
+waitforseconddial = 0
 
 def count(pin):
 	global c 
@@ -38,15 +39,24 @@ while True:
 				pass
 			
 			current = GPIO.input(18)
+			
 			if(last != current):
+				if(current == 0 && waitforseconddial != 0):
+					GPIO.add_event_detect(23, GPIO.BOTH, callback=count, bouncetime=300)
+					waitforseconddial=0
+					
 				if(current == 0):
-					GPIO.add_event_detect(23, GPIO.BOTH, callback=count, bouncetime=5)
+					waitforseconddial=1
+					GPIO.add_event_detect(23, GPIO.BOTH, callback=count, bouncetime=500)
+					
 				else:
 					GPIO.remove_event_detect(23)
 					number = math.floor(c/2.1)
 					player = subprocess.Popen(["mpg123", "/media/" + str(number) + ".mp3", "-q"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)	
 					c=0
+					
 				last = GPIO.input(18)
+				
 		if GPIO.event_detected(24):
 			
 			try:
