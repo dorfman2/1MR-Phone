@@ -12,7 +12,6 @@ GPIO.setup(24, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 c=0
 last = 1
-waitforseconddial = 0
 
 def count(pin):
 	global c 
@@ -46,11 +45,7 @@ while True:
 				if(current == 0):
 					if(waitforseconddial != 0):
 						GPIO.add_event_detect(23, GPIO.BOTH, callback=count, bouncetime=300)
-						waitforseconddial=0
-					else:
-						waitforseconddial=1
-					GPIO.add_event_detect(23, GPIO.BOTH, callback=count, bouncetime=500)
-					
+	
 				else:
 					GPIO.remove_event_detect(23)
 					number = math.floor(c/2.1)
