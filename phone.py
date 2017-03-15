@@ -41,12 +41,14 @@ while True:
 			current = GPIO.input(18)
 			
 			if(last != current):
-				if(current == 0 && waitforseconddial != 0):
-					GPIO.add_event_detect(23, GPIO.BOTH, callback=count, bouncetime=300)
-					waitforseconddial=0
+				
 					
 				if(current == 0):
-					waitforseconddial=1
+					if(waitforseconddial != 0):
+						GPIO.add_event_detect(23, GPIO.BOTH, callback=count, bouncetime=300)
+						waitforseconddial=0
+					else:
+						waitforseconddial=1
 					GPIO.add_event_detect(23, GPIO.BOTH, callback=count, bouncetime=500)
 					
 				else:
