@@ -43,8 +43,7 @@ while True:
 				
 					
 				if(current == 0):
-					if(waitforseconddial != 0):
-						GPIO.add_event_detect(23, GPIO.BOTH, callback=count, bouncetime=300)
+					GPIO.add_event_detect(23, GPIO.BOTH, callback=count, bouncetime=300)
 	
 				else:
 					GPIO.remove_event_detect(23)
