@@ -22,6 +22,7 @@ GPIO.setup(24, GPIO.IN, pull_up_down=GPIO.PUD_UP) # Normally Open Reciever Switc
 
 c=0
 last = 1
+dialednum = 0
 
 def count(pin):
 	global c 
@@ -36,7 +37,7 @@ o = OSC.OSCClient()
 o.connect(send_address)
 
 msg = OSC.OSCMessage()
-msg.setAddress("/print/", c)
+msg.setAddress(["/cue/", dialednum, "/fire"])
 msg.append(44)
 
 
@@ -73,7 +74,8 @@ while True:
 				else:
 					GPIO.remove_event_detect(23)
 					number = math.floor(c/2.1)
-					player = subprocess.Popen(["mpg123", "/media/" + str(number) + ".mp3", "-q"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)	
+					dialednum = str(number)
+					player = subprocess.Popen(["mpg123", "/media/" + dialednum + ".mp3", "-q"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)	
 					o.send(msg)
 					c=0
 					
