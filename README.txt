@@ -5,25 +5,23 @@ DESCRIPTION
     1 Mile Radius Rotary Telephone
     ================
     
-
     
     ----------
     Changelog:
     ----------
-    v1.0  - 27 Dec. 2007
+    v1.0  - 14 Mar. 2017
+            Modified script created by https://gist.github.com/simonjenny/8d6c29db8b8a995a4d89
+            Commited V1.0
 
-    v0.3.4  - 13 Jan. 2008
-            Added message-filtering to OSCMultiClient
-            Added subscription-handler to OSCServer
-            Added support fon numpy/scipy int & float types. (these get converted to 'standard' 32-bit OSC ints / floats!)
-            Cleaned-up and added more Docstrings
+    v1.1  - 19 Mar. 2017
+            Added OSC capabilites for external interactive elements using pyOSC
     
     
     -----------------
     Original Comments
     -----------------
     
-    > Open SoundControl for Python
+    > This Uses Open SoundControl for Python
     > Copyright (C) 2002 Daniel Holth, Clinton McChesney
     > 
     > This library is free software; you can redistribute it and/or modify it under
@@ -53,6 +51,13 @@ DESCRIPTION
 
 INSTALLING
 
+REQUIRES INSTALLATION OF;
+
+    Git
+    https://github.com/IanShelanskey/pyosc
+    python3 
+    python3-rpi.gpio 
+    mpg123
     
 DOCUMENTATION
 
