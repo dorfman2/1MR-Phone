@@ -51,6 +51,47 @@ DESCRIPTION
 
 INSTALLING
 
+Boot up the RaspberryPi and login. First update your Repositories:
+
+        sudo apt-get update && apt-get upgrade -y
+        
+        
+Install Python3, Python GPIO and mpg123
+
+        sudo apt-get install python3 python3-rpi.gpio mpg123
+        
+        
+Create a file in /usr/bin
+
+        sudo nano /usr/bin/phone
+        
+        
+Copy phone.py code to /usr/bin/phone:
+
+        
+
+Make /usr/bin/phone executable:
+
+        sudo chmod a+x /usr/bin/phone
+
+
+Copy your MP3 Files to /media, rename them to 1.mp3, 2.mp3 ... 10.mp3
+
+Test your phone first :
+
+        /usr/bin/./phone
+        
+        
+Update /etc/rc.local
+
+        sudo nano /etc/rc.local
+        
+        
+and insert this script before exit 0;
+
+        /usr/bin/./phone &
+
+
 REQUIRES INSTALLATION OF;
 
     Git
