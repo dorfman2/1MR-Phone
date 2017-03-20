@@ -102,5 +102,10 @@ REQUIRES INSTALLATION OF;
     
 DOCUMENTATION
 
+Following are the steps to be followed to install python3's setuptools and SPARQLWrapper
+
+sudo apt-get install python3-setuptools
+sudo easy_install3 pip
+pip -V This should show the pip corresponding to your python3 installation.
     
 TESTING
