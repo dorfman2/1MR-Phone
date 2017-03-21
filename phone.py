@@ -78,7 +78,29 @@ while True:
 					number = math.floor(c/2.1)
 					dialednum = str(number)
 					player = subprocess.Popen(["mpg123", "/media/" + dialednum + ".mp3", "-q"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)	
-					client.send_message(["/cue/", chr(dialednum), "/fire"], random.random()) 
+					if(dialednum = 0):
+						client.send_message(["/cue/0/fire"], random.random())
+					elif(dialednum = 1):
+						client.send_message(["/cue/1/fire"], random.random()) 
+					elif(dialednum = 2):
+						client.send_message(["/cue/2/fire"], random.random())
+					elif(dialednum = 3):
+						client.send_message(["/cue/3/fire"], random.random())
+					elif(dialednum = 4):
+						client.send_message(["/cue/4/fire"], random.random()) 
+					elif(dialednum = 5):
+						client.send_message(["/cue/5/fire"], random.random())
+					elif(dialednum = 5):
+						client.send_message(["/cue/6/fire"], random.random())
+					elif(dialednum = 6):
+						client.send_message(["/cue/7/fire"], random.random()) 
+					elif(dialednum = 7):
+						client.send_message(["/cue/8/fire"], random.random())
+					elif(dialednum = 8):
+						client.send_message(["/cue/9/fire"], random.random())
+					elif(dialednum = 9):
+						client.send_message(["/cue/10/fire"], random.random()) 
+
 					c=0
 					
 				last = GPIO.input(18)
@@ -87,6 +109,7 @@ while True:
 			
 			try:
 				player.kill()
+				client.send_message(["/cue/stop"], random.random())
 			except NameError:
 				pass
 			
