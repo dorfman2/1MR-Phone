@@ -78,7 +78,7 @@ while True:
 					number = math.floor(c/2.1)
 					dialednum = str(number)
 					player = subprocess.Popen(["mpg123", "/media/" + dialednum + ".mp3", "-q"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)	
-					client.send_message(["/cue/", dialednum, "/fire"], random.random()) 
+					client.send_message(["/fire", random.random()) 
 					c=0
 					
 				last = GPIO.input(18)
