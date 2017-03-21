@@ -11,6 +11,7 @@ import math, sys, os
 import subprocess
 import socket
 import argparse
+import time
 
 from pythonosc import osc_message_builder
 from pythonosc import udp_client
@@ -34,14 +35,6 @@ def count(pin):
 	
 # ===== SETUP SCRIPT =====	
 
-if __name__ == "__main__":
-	parser = argparse.ArgumentParser()
-	parser.add_argument("--ip", default="10.1.10.18", help="The ip of the OSC server")
-	parser.add_argument("--port", type=int, default=5005, help="The port the OSC server is listening on")
-	args = parser.parse_args()
-
-	client = udp_client.SimpleUDPClient(args.ip, args.port)
-# Above is Setup for OSC Protocols
 
 from subprocess import call
 call(["amixer", "cset", "numid=1", "400"])
@@ -53,6 +46,15 @@ GPIO.add_event_detect(18, GPIO.BOTH)
 GPIO.add_event_detect(24, GPIO.BOTH)
 
 # ===== MAIN SCRIPT =====
+
+if __name__ == "__main__":
+	parser = argparse.ArgumentParser()
+	parser.add_argument("--ip", default="10.1.10.18", help="The ip of the OSC server")
+	parser.add_argument("--port", type=int, default=5005, help="The port the OSC server is listening on")
+	args = parser.parse_args()
+
+	client = udp_client.SimpleUDPClient(args.ip, args.port)
+# Above is for OSC Protocols
 
 while True:
 	try:
