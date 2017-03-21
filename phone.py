@@ -1,16 +1,19 @@
-"""
-1 Mile Radius Telephone is an interactive rotary telephone created for the 1 Mile Radius Project.
-Written by Jeffrey Dorfman, and using code from Ian Shelanskey and Simon Jenny.
-VERSION 1.1
-19 March, 2017
-"""
-
 #!/usr/bin/python3
+
+# 1 Mile Radius Telephone is an interactive rotary telephone created for the 1 Mile Radius Project.
+# Written by Jeffrey Dorfman, and using code from Ian Shelanskey and Simon Jenny.
+# VERSION 1.1.1
+# 19 March, 2017
+
+
 import RPi.GPIO as GPIO  
 import math, sys, os
 import subprocess
 import socket
-import OSC
+import argparse
+
+from pythonosc import osc_message_builder
+from pythonosc import udp_client
 
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)  
@@ -31,23 +34,20 @@ def count(pin):
 	
 # ===== SETUP SCRIPT =====	
 
-send_address = '10.1.10.18' , 8000 # Adjust the IP and Port number to transmit to here
+if __name__ == "__main__":
+	parser = argparse.ArgumentParser()
+	parser.add_argument("--ip", default="10.1.10.18", help="The ip of the OSC server")
+	parser.add_argument("--port", type=int, default=5005, help="The port the OSC server is listening on")
+	args = parser.parse_args()
 
-o = OSC.OSCClient()
-o.connect(send_address)
-
-msg = OSC.OSCMessage()
-msg.setAddress(["/cue/", dialednum, "/fire"])
-msg.append(44)
-
+	client = udp_client.SimpleUDPClient(args.ip, args.port)
+# Above is Setup for OSC Protocols
 
 from subprocess import call
 call(["amixer", "cset", "numid=1", "400"])
 call(["amixer", "cset", "numid=3", "0"])
-"""
-adjust volume of amixer to 100%, this line may vary depending on version. Use "amixer controls" to discover your numid=?
-Also ensures correct output, mine kept defaulting to the wrong one.
-"""
+# Above adjusts volume of amixer to 100%, this line may vary depending on version. Use "amixer controls" to discover your numid=?
+# Also ensures correct output, mine kept defaulting to the wrong one.
 
 GPIO.add_event_detect(18, GPIO.BOTH)
 GPIO.add_event_detect(24, GPIO.BOTH)
@@ -76,7 +76,7 @@ while True:
 					number = math.floor(c/2.1)
 					dialednum = str(number)
 					player = subprocess.Popen(["mpg123", "/media/" + dialednum + ".mp3", "-q"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)	
-					o.send(msg)
+					client.send_message("/cue/", dialednum, "/fire") 
 					c=0
 					
 				last = GPIO.input(18)
