@@ -75,7 +75,9 @@ Make /usr/bin/phone executable:
         sudo chmod a+x /usr/bin/phone
 
 
-Copy your MP3 Files to /media, rename them to 1.mp3, 2.mp3 ... 10.mp3
+Copy your MP3 Files to /media, rename them to 0.mp3, 1.mp3 ... 9.mp3
+
+Create playlists for each number in /media, call them 0.m3u, 1.m3u, ... 9.m3u
 
 Test your phone first :
 
