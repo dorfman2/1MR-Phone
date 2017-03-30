@@ -13,8 +13,8 @@ DESCRIPTION
             Modified script created by https://gist.github.com/simonjenny/8d6c29db8b8a995a4d89
             Commited V1.0
 
-    v1.1  - 19 Mar. 2017
-            Added OSC capabilites for external interactive elements using pyOSC
+    v1.1.2  - 29 Mar. 2017
+            Added OSC capabilites for external interactive elements using pyOSC and Dial Tone.
     
     
     -----------------
