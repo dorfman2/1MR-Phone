@@ -55,7 +55,8 @@ REQUIRES INSTALLATION OF;
     Git
     https://github.com/IanShelanskey/pyosc
     python3 
-    python3-rpi.gpio 
+    python3-rpi.gpio
+    python3-pip
     mpg123
     
 Boot up the RaspberryPi and login. First update your Repositories:
@@ -70,13 +71,13 @@ Install python-osc (for OSC transmission. This is optional, but you'll need to c
 
         $ sudo pip3 install python-osc
         
-Create a file in /usr/bin
+Create a file in /home/pi
 
-        $ sudo nano /usr/bin/phone
+        $ sudo nano /home/pi/phone
         
-Copy phone.py code to /usr/bin/phone:
+Copy phone.py code to /home/pi/phone:
 
-        $ sudo
+        Using putty, copy RAW text and right click into terminal.
 
 Make /usr/bin/phone executable:
 
@@ -87,10 +88,16 @@ Copy your MP3 Files to /media, rename them to 0.mp3, 1.mp3 ... 9.mp3
 
 Create playlists for each number in /media, call them 0.m3u, 1.m3u, ... 9.m3u
 
-Test your phone first :
-
-        /usr/bin/./phone
+        Each is just a text file that is based on this structure
         
+        $ /home/pi/0.mp3
+        $ /home/pi/dialtone.mp3
+
+
+Test your phone first (this assumes you're in the default location of /home/pi):
+
+        $ ./phone 
+        (this assumes you're in the default location of /home/pi. Use /home/pi/./phone is elseware)
         
 Update /etc/rc.local
 
@@ -99,19 +106,13 @@ Update /etc/rc.local
         
 and insert this script before exit 0;
 
-        /usr/bin/./phone &
-
-
+        /home/pi/./phone &
 
     
 
 DOCUMENTATION
 
-Following are the steps to be followed to install python3's setuptools and SPARQLWrapper
 
-sudo apt-get install python3-setuptools
-sudo easy_install3 pip
-pip -V This should show the pip corresponding to your python3 installation.
     
 TESTING
 
