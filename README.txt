@@ -60,30 +60,27 @@ REQUIRES INSTALLATION OF;
     
 Boot up the RaspberryPi and login. First update your Repositories:
 
-        sudo apt-get update && apt-get upgrade -y
+        $ sudo apt-get update && apt-get upgrade -y
         
-        
-Install Python3, Python GPIO and mpg123
+Install Python3, Python GPIO, mpg123, and python3-pip
 
-        sudo apt-get install python3 python3-rpi.gpio mpg123
+        $ sudo apt-get install python3 python3-rpi.gpio mpg123 python3-pip
         
-Install pyosc (for OSC transmission. This is optional, but you'll need to comment out the OSC lines in the code if you skip this)
+Install python-osc (for OSC transmission. This is optional, but you'll need to comment out the OSC lines in the code if you skip this)
 
-        
-        
+        $ sudo pip3 install python-osc
         
 Create a file in /usr/bin
 
-        sudo nano /usr/bin/phone
-        
+        $ sudo nano /usr/bin/phone
         
 Copy phone.py code to /usr/bin/phone:
 
-        
+        $ sudo
 
 Make /usr/bin/phone executable:
 
-        sudo chmod a+x /usr/bin/phone
+        $ sudo chmod a+x /usr/bin/phone
 
 
 Copy your MP3 Files to /media, rename them to 0.mp3, 1.mp3 ... 9.mp3
@@ -117,3 +114,8 @@ sudo easy_install3 pip
 pip -V This should show the pip corresponding to your python3 installation.
     
 TESTING
+
+Commands I found useful in debugging
+
+    $ sudo killall -9 mpg123
+    $
