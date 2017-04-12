@@ -4,7 +4,13 @@ DESCRIPTION
     ================
     1 Mile Radius Rotary Telephone
     ================
-    
+
+
+    ----------
+    HARDWARE
+    ----------
+
+    Open up your phone. Remove the circuit board and bells. Be sure to keep the wires leading to the rotary, as well as the handset and handset switch.
     
     ----------
     Changelog:
@@ -41,16 +47,17 @@ DESCRIPTION
     > For questions regarding this module contact Daniel Holth <dholth@stetson.edu>
     > or visit http://www.stetson.edu/~ProctoLogic/
     
-    > Changelog:
-    > 15 Nov. 2001:
-    >       Removed dependency on Python 2.0 features.
-    >       - dwh
-    > 13 Feb. 2002:
-    >       Added a generic callback handler.
-    >       - dwh
 
 INSTALLING
 
+REQUIRES INSTALLATION OF;
+
+    Git
+    https://github.com/IanShelanskey/pyosc
+    python3 
+    python3-rpi.gpio 
+    mpg123
+    
 Boot up the RaspberryPi and login. First update your Repositories:
 
         sudo apt-get update && apt-get upgrade -y
@@ -59,6 +66,10 @@ Boot up the RaspberryPi and login. First update your Repositories:
 Install Python3, Python GPIO and mpg123
 
         sudo apt-get install python3 python3-rpi.gpio mpg123
+        
+Install pyosc (for OSC transmission. This is optional, but you'll need to comment out the OSC lines in the code if you skip this)
+
+        
         
         
 Create a file in /usr/bin
@@ -94,14 +105,9 @@ and insert this script before exit 0;
         /usr/bin/./phone &
 
 
-REQUIRES INSTALLATION OF;
 
-    Git
-    https://github.com/IanShelanskey/pyosc
-    python3 
-    python3-rpi.gpio 
-    mpg123
     
+
 DOCUMENTATION
 
 Following are the steps to be followed to install python3's setuptools and SPARQLWrapper
