@@ -1,117 +1,132 @@
-# -*- coding: utf-8 -*-
 #!/usr/bin/python3
 
 # 1 Mile Radius Telephone is an interactive rotary telephone created for the 1 Mile Radius Project.
-# Written by Jeffrey Dorfman, and using code from Ian Shelanskey and Simon Jenny.
-# VERSION 1.1.2
-# 29 March, 2017
+# Version 2.0, written by Jeffrey Dorfman, using code from Raaff (https://github.com/Raaff)
+# 21 March, 2017
 
-
-import RPi.GPIO as GPIO  
-import math
 import subprocess
-import socket
+import gpiozero
+import math
+import os, time
 import argparse
-
-
-from pythonosc import osc_message_builder
 from pythonosc import udp_client
 
-GPIO.setwarnings(False)
-GPIO.setmode(GPIO.BCM)  
-GPIO.setup(18, GPIO.IN, pull_up_down=GPIO.PUD_UP) # Dial Circuit
-GPIO.setup(23, GPIO.IN, pull_up_down=GPIO.PUD_UP) # Release Dial Circuit
-GPIO.setup(24, GPIO.IN, pull_up_down=GPIO.PUD_UP) # Normally Open Reciever Switch
+# ===== Variables =====
 
-# ===== VARIABLES =====
+# What ip & port number OSC sends to.
+osc_ip = "10.1.10.20"
+osc_port = "8000"
 
-c=0
-last = 1
-dialednum = 0
-reciever = 0 # 0 is pressed, 1 is released
-startup = 0
+start = 1
 
-def count(pin):
-	global c 
-	c = c + 1
-	
-	
-# ===== SETUP SCRIPT =====	
-    
-# GPIO Event detection
-GPIO.add_event_detect(18, GPIO.BOTH)
-GPIO.add_event_detect(24, GPIO.BOTH)
+# Your phone GPIO pins, using BCIM numbers
+pin_rotaryenable = 18  #Clockwise Rotary Circuit
+pin_countrotary = 23   #Counter-clockwise Rotary Circuit
+pin_hook = 24          #Hook or hangup Switch
 
-reciever = GPIO.input(24)
+bouncetime_enable = 0.01
+bouncetime_rotary = 0.01
+bouncetime_hook = 0.01
 
-from subprocess import call
-call(["amixer", "cset", "numid=1", "400"])
-call(["amixer", "cset", "numid=3", "0"])
-# Above adjusts volume of amixer to 100%, this line may vary depending on version. Use "amixer controls" to discover your numid=?
-# Also ensures correct output, mine kept defaulting to the wrong one.
+rotaryenable = gpiozero.DigitalInputDevice(pin_rotaryenable, pull_up=True, bounce_time=bouncetime_enable)
+countrotary = gpiozero.DigitalInputDevice(pin_countrotary, pull_up=True, bounce_time=bouncetime_rotary)
+hook = gpiozero.DigitalInputDevice(pin_hook, pull_up=True, bounce_time=bouncetime_hook)
 
 
-# OSC Protocols
 if __name__ == "__main__":
-	parser = argparse.ArgumentParser()
-	parser.add_argument("--ip", default="192.168.1.220", help="The ip of the OSC server")
-	parser.add_argument("--port", type=int, default=8000, help="The port the OSC server is listening on")
-	args = parser.parse_args()
-
-	client = udp_client.SimpleUDPClient(args.ip, args.port)
-
-
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--ip", default=osc_ip, help="The ip of the OSC server")
+    parser.add_argument("--port", type=int, default=osc_port, help="The port the OSC server is listening on")
+    args = parser.parse_args()
+    
+client = udp_client.SimpleUDPClient(args.ip, args.port)
 
 
-# ===== MAIN SCRIPT =====
-while True:
-	try:
-		if GPIO.event_detected(18):
-			
-			try:
-				player.kill()
-			except NameError:
-				pass
-			
-			current = GPIO.input(18)
-			
-			if(last != current):
-				
-					
-				if(current == 0):
-					GPIO.add_event_detect(23, GPIO.BOTH, callback=count, bouncetime=5)
-	
-				else:
-					GPIO.remove_event_detect(23)
-					number = math.floor(c/2.1)
-					dialednum = str(number)
-					player = subprocess.Popen(["mpg123", "-q", "-@", "/media/" + dialednum + ".m3u"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-					client.send_message("cue/" + dialednum + "/fire", dialednum)
-					c=0
-					
-				last = GPIO.input(18)
-				
-		if GPIO.event_detected(24):
-			reciever = GPIO.input(24)
-			if(startup == 0):
-				player = subprocess.Popen(["mpg123", "-q", "/media/dialtone.mp3"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-				startup = 1
-			if(reciever == 0):
-				try:
-					player.kill()
-					client.send_message("cue/hangup", 0)
-				except NameError:
-					pass
 
-			if(reciever == 1):
-		
-				try:
-					player.kill()
-					player = subprocess.Popen(["mpg123", "-q", "/media/dialtone.mp3"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-					client.send_message("cue/dialtone", 0)
-				except NameError:
-					pass
-			
-		
-	except KeyboardInterrupt:
-		break
+# ===== Class Definitions =====
+
+
+def shutdown():
+	subprocess.Popen(["sudo shutdown -h now"], shell=True)
+    
+class Dial():
+    def __init__(self):
+        self.pulses = 0
+        self.number = ""
+        self.counting = True
+        self.calling = False
+
+    def startcalling(self):
+        self.calling = True
+        client.send_message("cue/dialling", 1)
+        self.player = subprocess.Popen(["mpg123", "-q", "/home/pi/1MR-Phone/media/dialtone.mp3", ], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    def stopcalling(self):
+        self.calling = False
+        self.reset()
+
+    def startcounting(self):
+        self.counting = self.calling
+
+    def stopcounting(self):
+        if self.calling:
+            if self.pulses > 0:
+                if math.floor(self.pulses / 2) == 10:
+                    self.number += "0"
+                else:
+                    self.number += str(math.floor(self.pulses / 2))
+            self.pulses = 0
+            if self.number == "633":
+                client.send_message("Shutdown", 1)
+                shutdown()
+                return
+            elif os.path.isfile("/home/pi/1MR-Phone/media/" + self.number + ".mp3"):
+                print("start player with number = %s" % self.number)
+                
+                try:
+                    self.player.kill()
+                except:
+                    pass
+                client.send_message("cue/" + self.number + "/fire", self.number)
+                self.player = subprocess.Popen(["mpg123", "/home/pi/1MR-Phone/media/" + self.number + ".mp3", "-q"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        self.counting = False
+
+    def addpulse(self):
+        print("addpulse")
+        if self.counting:
+            print("real addpulse")
+            self.pulses += 1
+
+    def getnumber(self):
+        return self.number
+
+    def reset(self):
+        print ("Hangup")
+        client.send_message("cue/hangup", 1)
+        self.pulses = 0
+        self.number = ""
+        try:
+            self.player.kill()
+        except:
+            pass
+
+# ===== Main Script =====
+
+
+
+if __name__ == "__main__":
+    if (start == 1):
+        start = 0
+        print("Phone On")
+        client.send_message("Startup Complete", 1)   
+    dial = Dial()
+    countrotary.when_deactivated = dial.addpulse
+    countrotary.when_activated = dial.addpulse
+    rotaryenable.when_activated = dial.startcounting
+    rotaryenable.when_deactivated = dial.stopcounting
+    hook.when_activated = dial.stopcalling
+    hook.when_deactivated = dial.startcalling
+    while True:
+        time.sleep(1)
+     
