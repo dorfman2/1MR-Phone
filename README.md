@@ -53,7 +53,7 @@ INSTALLING
 REQUIRES INSTALLATION OF;
 
     Git
-    https://github.com/IanShelanskey/pyosc
+    https://github.com/attwad/python-osc
     python3 
     python3-rpi.gpio
     python3-pip
