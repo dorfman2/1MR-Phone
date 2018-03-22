@@ -22,6 +22,7 @@ Dependencies;
     * Git
     * gpiozero
     * python-osc
+    * python-pip
     * python3
     * python3-pip
     * mpg123
@@ -39,13 +40,13 @@ Install Python3, mpg123, git, and python3-pip
 
 .. code-block:: bash
 
-        $ sudo apt-get install git python3 python3-pip mpg123 python3-gpiozero
+        $ sudo apt-get install git python-pip python3 python3-pip mpg123 python3-gpiozero
         
 Install python-osc
 
 .. code-block:: bash
 
-        $ pip3 install python-osc
+        $ pip install python-osc
         
 Navigate to your root directory (/home/pi) and install 1MR-Phone using pip:
 
