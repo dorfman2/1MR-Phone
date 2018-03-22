@@ -11,7 +11,7 @@ setup(
       name='1MR-Phone',
       version='2.0.0',
       description='MP3 Rotary Telephone',
-      long_description=open('README.txt').read(),
+      long_description=open('README.rst').read(),
       url='https://github.com/dorfman2/1MR-Phone.git',
       platforms='any',
       author='dorfman2',
