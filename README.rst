@@ -1,16 +1,18 @@
-# MP3 Rotary Telephone
+MP3 Rotary Telephone
 -----
-## DESCRIPTION 
+Description
+-----
 This module contains python 3 script to operate an interactive, rotary telephone. It plays back different audio files when different numbers are dialed. It features an OSC client to provide interactivity with audio & video elements on the same network. 
 
 It can be used without untilizing OSC, but be sure to install the dependacy unless you want to comment out all the references
     
 This phone was designed and built for a interactive performance called <strong>One Mile Radius Project</strong>.
 
+-----
+Installation
+-----
 
-## Installation
-
-### Dependencies;
+Dependencies;
 
     Git
     gpiozero
@@ -19,7 +21,7 @@ This phone was designed and built for a interactive performance called <strong>O
     python3-pip
     mpg123
     
-#### To Install Dependencies 
+To Install Dependencies 
 
 Boot up the RaspberryPi and login. First update your Repositories:
 
@@ -29,9 +31,7 @@ Install Python3, mpg123, and python3-pip
 
         $ sudo apt-get install python3 python3-pip mpg123 python3-gpiozero
         
-#### Install 1MR-Phone
-
-Download and install using pip:
+Install 1MR-Phone using pip:
 
         $ pip install 1MR-Phone
 
@@ -40,46 +40,33 @@ Make /usr/bin/phone executable:
         $ sudo chmod a+x /usr/bin/phone
 
 
-Copy your MP3 Files to /media, rename them to 0.mp3, 1.mp3 ... 9.mp3
+Copy your MP3 Files to /media, rename them to digits you want to be dialed "123.mp3."
 
-Create playlists for each number in /media, call them 0.m3u, 1.m3u, ... 9.m3u
-
-        Each is just a text file that is based on this structure
-        
-        $ /home/pi/0.mp3
-        $ /home/pi/dialtone.mp3
-
-
-Test your phone first (this assumes you're in the default location of /home/pi):
-
-        $ ./phone 
-        (this assumes you're in the default location of /home/pi. Use /home/pi/./phone is elseware)
         
 Update /etc/rc.local
 
-        sudo nano /etc/rc.local
-        
-        
+        $ sudo nano /etc/rc.local
+       
 and insert this script before exit 0;
 
-        /home/pi/./phone &
+        $ /home/pi/./phone &
 
   
 
-## Use
+Use
 -----
 
-## Hardware
-
-### List
+Hardware
+-----
+List
 
 * Rotary Telephone
 * Raspberry Pi w/ Memory card
 * 5v Power Supply
 * Ethernet Cable
 
-### Build
-
+Build
+-----
 1. Open up your rotary telephone. 
 2. Remove the circuit board and bells. Be sure to keep the wires leading to the rotary, as well as the handset and handset switch.
 3. Use a meter or some low voltage method to identify the wires connected to the;
@@ -95,16 +82,16 @@ and insert this script before exit 0;
 6. connect to Power
 
 ----------
-##Changelog
+Changelog
 ----------
-<strong>v1.0  - 14 Mar. 2017</strong>
+v1.0  - 14 Mar. 2017
     - Modified script created by https://gist.github.com/simonjenny/8d6c29db8b8a995a4d89
     - Commited V1.0
 
-<strong>v1.1.2  - 29 Mar. 2017</strong>
+v1.1.2  - 29 Mar. 2017
     - Added OSC capabilites for external interactive elements using Python-osc and Dial Tone.
             
-<strong>v2.0 - 21 Mar. 2018</strong>
+v2.0 - 21 Mar. 2018
     - Forked https://github.com/Raaff/rotarypi.git
         This added stability, shudown, and multi-digit dialling
         Utilizes new gpioZero library
@@ -112,7 +99,7 @@ and insert this script before exit 0;
     - removed TTS functions (since this will not be online)
     
 -----------------
-## Original Comments
+Original Comments
 -----------------
     
     > This Uses Open SoundControl for Python
