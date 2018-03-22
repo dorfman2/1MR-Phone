@@ -26,19 +26,27 @@ To Install Dependencies & 1MR-Phone
 -----
 Boot up the RaspberryPi and login. First update your Repositories:
 
+.. code-block:: bash
+
         $ sudo apt-get update && apt-get upgrade -y
         
 Install Python3, mpg123, and python3-pip
+
+.. code-block:: bash
 
         $ sudo apt-get install python3 python3-pip mpg123 python3-gpiozero
         
 Install 1MR-Phone using pip:
 
+.. code-block:: bash
+
         $ pip install 1MR-Phone
 
 Make /usr/bin/phone executable:
 
-        $ sudo chmod -x /home/pi/1MR-Phone/phone.py
+.. code-block:: bash
+
+        $ sudo chmod +x /home/pi/1MR-Phone/phone.py
 
 
 Copy your MP3 Files to /media, rename them to digits you want to be dialed "123.mp3."
@@ -46,7 +54,9 @@ Copy your MP3 Files to /media, rename them to digits you want to be dialed "123.
         
 Append rc.local if you want this to run at boot.
 
-        $ sudo sed -i -e '$i \/home/pi/1MR-Phone/./phone &\n' /etc/rc.local
+.. code-block:: bash
+
+        $ sudo sed -i -e '$i \/home/pi/1MR-Phone/./phone.py &\n' /etc/rc.local
        
 
  
