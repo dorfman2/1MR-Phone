@@ -1,4 +1,4 @@
-MP3 Rotary Telephone
+1MR MP3 Rotary Telephone
 -----
 Description
 -----
@@ -6,7 +6,7 @@ This module contains python 3 script to operate an interactive, rotary telephone
 
 It can be used without untilizing OSC, but be sure to install the dependacy unless you want to comment out all the references
     
-This phone was designed and built for a interactive performance called <strong>One Mile Radius Project</strong>.
+This phone was designed and built for a interactive performance called One Mile Radius Project(1MR for short).
 
 -----
 Installation
@@ -14,15 +14,16 @@ Installation
 
 Dependencies;
 
-    Git
-    gpiozero
-    [python-osc](https://github.com/attwad/python-osc)
-    python3
-    python3-pip
-    mpg123
+    * Git
+    * gpiozero
+    * python-osc
+    * python3
+    * python3-pip
+    * mpg123
     
-To Install Dependencies 
-
+-----
+To Install Dependencies & 1MR-Phone
+-----
 Boot up the RaspberryPi and login. First update your Repositories:
 
         $ sudo apt-get update && apt-get upgrade -y
