@@ -1,4 +1,9 @@
-1MR MP3 Rotary Telephone
+=====
+1MR-Phone
+=====
+
+An MP3 rotary telephone
+
 -----
 Description
 -----
@@ -30,11 +35,17 @@ Boot up the RaspberryPi and login. First update your Repositories:
 
         $ sudo apt-get update && apt-get upgrade -y
         
-Install Python3, mpg123, and python3-pip
+Install Python3, mpg123, git, and python3-pip
 
 .. code-block:: bash
 
-        $ sudo apt-get install python3 python3-pip mpg123 python3-gpiozero
+        $ sudo apt-get install git python3 python3-pip mpg123 python3-gpiozero
+        
+Install python-osc
+
+.. code-block:: bash
+
+        $ pip install python-osc
         
 Install 1MR-Phone using pip:
 
@@ -48,11 +59,6 @@ Make /usr/bin/phone executable:
 
         $ sudo chmod +x /home/pi/1MR-Phone/phone.py
 
-
-Copy your MP3 Files to /media, rename them to digits you want to be dialed "123.mp3."
-
-I prefer to use FileZilla for this.
-
         
 Append rc.local if you want this to run at boot.
 
@@ -65,7 +71,9 @@ Append rc.local if you want this to run at boot.
 
 Use
 -----
+Copy your MP3 Files to /media, rename them to digits you want to be dialed "123.mp3."
 
+I prefer to use FileZilla for this.
 Hardware
 -----
 List
