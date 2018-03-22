@@ -8,7 +8,7 @@ except ImportError:
     test_extras = {}
     
 setup(
-      name='1MR-Phone',
+      name='1mrphone',
       version='2.0.0',
       description='MP3 Rotary Telephone',
       long_description=open('README.rst').read(),
