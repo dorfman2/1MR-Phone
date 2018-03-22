@@ -38,21 +38,18 @@ Install 1MR-Phone using pip:
 
 Make /usr/bin/phone executable:
 
-        $ sudo chmod a+x /usr/bin/phone
+        $ sudo chmod -x /home/pi/1MR-Phone/phone.py
 
 
 Copy your MP3 Files to /media, rename them to digits you want to be dialed "123.mp3."
 
         
-Update /etc/rc.local
+Append rc.local if you want this to run at boot.
 
-        $ sudo nano /etc/rc.local
+        $ sudo sed -i -e '$i \/home/pi/1MR-Phone/./phone &\n' /etc/rc.local
        
-and insert this script before exit 0;
 
-        $ /home/pi/./phone &
-
-  
+ 
 
 Use
 -----
