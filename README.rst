@@ -45,18 +45,20 @@ Install python-osc
 
 .. code-block:: bash
 
-        $ pip install python-osc
+        $ pip3 install python-osc
         
-Install 1MR-Phone using pip:
+Navigate to your root directory (/home/pi) and install 1MR-Phone using pip:
 
 .. code-block:: bash
 
-        $ pip install 1MR-Phone
+        $ cd
+        $ git clone https://github.com/dorfman2/1MR-Phone.git
 
-Make /usr/bin/phone executable:
+Navigate into the folder and make /usr/bin/phone executable:
 
 .. code-block:: bash
 
+        $ cd 1MR-Phone
         $ sudo chmod +x /home/pi/1MR-Phone/phone.py
 
         
