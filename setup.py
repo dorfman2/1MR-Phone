@@ -27,4 +27,7 @@ setup(
         'Topic :: Multimedia :: Sound/Audio :: Players :: MP3'],
       install_requires=[
           'python-osc'],
+      scripts = [
+        'bin/install-script.sh'
+    ]
       zip_safe=False)
