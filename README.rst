@@ -51,6 +51,8 @@ Make /usr/bin/phone executable:
 
 Copy your MP3 Files to /media, rename them to digits you want to be dialed "123.mp3."
 
+I prefer to use FileZilla for this.
+
         
 Append rc.local if you want this to run at boot.
 
