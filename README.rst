@@ -18,7 +18,7 @@ This phone was designed and built for a interactive performance called <strong>O
     python3
     python3-pip
     mpg123
-
+    
 #### To Install Dependencies 
 
 Boot up the RaspberryPi and login. First update your Repositories:
@@ -27,19 +27,13 @@ Boot up the RaspberryPi and login. First update your Repositories:
         
 Install Python3, mpg123, and python3-pip
 
-        $ sudo apt-get install python3 mpg123 python3-pip
+        $ sudo apt-get install python3 python3-pip mpg123 python3-gpiozero
         
-Install python-osc (for OSC transmission. This is optional, but you'll need to comment out the OSC lines in the code if you skip this)
+#### Install 1MR-Phone
 
-        $ sudo pip3 install python-osc
-        
-Use git to clone in /home/pi
+Download and install using pip:
 
-        $ git clone 
-        
-Copy phone.py code to /home/pi/phone:
-
-        Using putty, copy RAW text and right click into terminal.
+        $ pip install 1MR-Phone
 
 Make /usr/bin/phone executable:
 
