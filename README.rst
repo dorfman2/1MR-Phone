@@ -71,14 +71,14 @@ Build
 1. Open up your rotary telephone. 
 2. Remove the circuit board and bells. Be sure to keep the wires leading to the rotary, as well as the handset and handset switch.
 3. Use a meter or some low voltage method to identify the wires connected to the;
-..1. Dial Circuit - this is active when dialing
-..2. Rotary Circuit - This is active when you release. Count the amount of clicks and it returns the number dialed.
-..3. Reciever or Hook Circuit - The contact that reacts to if the phone is "hung up."
+* Dial Circuit - this is active when dialing
+* Rotary Circuit - This is active when you release. Count the amount of clicks and it returns the number dialed.
+* Reciever or Hook Circuit - The contact that reacts to if the phone is "hung up."
 4. Connect these three circuits to ground, and three different GPIO pins. Not all GPIO pins are created equal, and this varies based on your Raspberry Pi model. I used for my Raspberry pi 2(With BCIM numbers);
-..1. Dial = 18 (Hardware Pin 12)
-..2. Ground (Hardware Pin 14)
-..3. Rotary = 23 (Hardware Pin 16)
-..4. Reciever = 24 (Hardware Pin 18)
+* Dial = 18 (Hardware Pin 12)
+* Ground (Hardware Pin 14)
+* Rotary = 23 (Hardware Pin 16)
+* Reciever = 24 (Hardware Pin 18)
 5. Connect to ethernet
 6. connect to Power
 
