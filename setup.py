@@ -29,5 +29,5 @@ setup(
           'python-osc'],
       scripts = [
         'bin/install-script.sh'
-    ]
+      ],
       zip_safe=False)
