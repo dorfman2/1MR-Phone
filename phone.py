@@ -76,9 +76,13 @@ class Dial():
                 else:
                     self.number += str(math.floor(self.pulses / 2))
             self.pulses = 0
-            if self.number == "633":
-                client.send_message("Shutdown", 1)
+            if self.number == "633": #If you dial "OFF" turns off Phone
+                client.send_message("Phone has entered Shutdown", 1)
                 shutdown()
+                return
+            if self.number == "7867": #If you dial "STOP" exits python script, comment out once debugging is complete
+                client.send_message("Phone has closed program, please restart to enable", 1)
+                exit()
                 return
             elif os.path.isfile("/home/pi/1MR-Phone/media/" + self.number + ".mp3"):
                 print("start player with number = %s" % self.number)
