@@ -41,7 +41,7 @@ if __name__ == "__main__":
     
 client = udp_client.SimpleUDPClient(args.ip, args.port)
 
-
+subprocess.Popen(["amixer cset numid=1 400"], shell=True) # Sets the volume to +4db (maximum)
 
 # ===== Class Definitions =====
 
