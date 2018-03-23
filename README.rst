@@ -59,15 +59,17 @@ Navigate into the folder and make /usr/bin/phone executable:
 
 .. code-block:: bash
 
-        $ cd 1MR-Phone
+        $ cd /home/pi/1MR-Phone
         $ sudo chmod +x /home/pi/1MR-Phone/phone.py
 
         
-Append rc.local if you want this to run at boot.
+Move sp.service to systemd if you want this to run at boot. Navigate to the folder first.
 
 .. code-block:: bash
 
-        $ sudo sed -i -e '$i \/home/pi/1MR-Phone/./phone.py &\n' /etc/rc.local
+        $ cd /home/pi/1MR-Phone
+        $ sudo cp sp.service /etc/systemd/system/sp.service
+        $ sudo systemctl enable myscript.service
        
 
  
