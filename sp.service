@@ -1,0 +1,14 @@
+[Unit]
+Description=phone
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 -u phone.py
+WorkingDirectory=/home/pi/1MR-Phone
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=pi
+
+[Install]
+WantedBy=multi-user.target
