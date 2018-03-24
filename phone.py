@@ -10,38 +10,24 @@ import math
 import os, time
 import argparse
 from pythonosc import udp_client
-
-# ===== Variables =====
-
-# What ip & port number OSC sends to.
-osc_ip = "10.1.10.20"
-osc_port = "8000"
-
-start = 1
-
-# Your phone GPIO pins, using BCIM numbers
-pin_rotaryenable = 18  #Clockwise Rotary Circuit
-pin_countrotary = 23   #Counter-clockwise Rotary Circuit
-pin_hook = 24          #Hook or hangup Switch
-
-bouncetime_enable = 0.01
-bouncetime_rotary = 0.01
-bouncetime_hook = 0.01
-
-rotaryenable = gpiozero.DigitalInputDevice(pin_rotaryenable, pull_up=True, bounce_time=bouncetime_enable)
-countrotary = gpiozero.DigitalInputDevice(pin_countrotary, pull_up=True, bounce_time=bouncetime_rotary)
-hook = gpiozero.DigitalInputDevice(pin_hook, pull_up=True, bounce_time=bouncetime_hook)
+import configparser
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--ip", default=osc_ip, help="The ip of the OSC server")
-    parser.add_argument("--port", type=int, default=osc_port, help="The port the OSC server is listening on")
-    args = parser.parse_args()
-    
-client = udp_client.SimpleUDPClient(args.ip, args.port)
 
-subprocess.Popen(["amixer cset numid=1 400"], shell=True) # Sets the volume to +4db (maximum)
+def connect(ip, port):
+     try:
+         client = udp_client.SimpleUDPClient(ip, port)
+     except OSError as err:
+         print("OS error: {0}".format(err))
+         print("woot")
+         exit(1)
+     return client
+#    cfg = configparser.ConfigParser()
+ #   cfg.read("config.ini")
+  #  sections = cfg.sections()
+#   api_key = cfg.get('section', 'api_key')
+#    print(api_key)
+
 
 # ===== Class Definitions =====
 
@@ -50,15 +36,16 @@ def shutdown():
 	subprocess.Popen(["sudo shutdown -h now"], shell=True)
     
 class Dial():
-    def __init__(self):
+    def __init__(self, client):
         self.pulses = 0
         self.number = ""
         self.counting = True
         self.calling = False
+        self.client = client
 
     def startcalling(self):
         self.calling = True
-        client.send_message("cue/dialling", 1)
+        self.client.send_message("cue/dialling", 1)
         self.player = subprocess.Popen(["mpg123", "-q", "/home/pi/1MR-Phone/media/dialtone.mp3", ], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     def stopcalling(self):
@@ -77,11 +64,11 @@ class Dial():
                     self.number += str(math.floor(self.pulses / 2))
             self.pulses = 0
             if self.number == "633": #If you dial "OFF" turns off Phone
-                client.send_message("Phone has entered Shutdown", 1)
+                self.client.send_message("Phone has entered Shutdown", 1)
                 shutdown()
                 return
             if self.number == "7867": #If you dial "STOP" exits python script, comment out once debugging is complete
-                client.send_message("Phone has closed program, please restart to enable", 1)
+                self.client.send_message("Phone has closed program, please restart to enable", 1)
                 exit()
                 return
             elif os.path.isfile("/home/pi/1MR-Phone/media/" + self.number + ".mp3"):
@@ -91,7 +78,7 @@ class Dial():
                     self.player.kill()
                 except:
                     pass
-                client.send_message("cue/" + self.number + "/fire", self.number)
+                self.client.send_message("cue/" + self.number + "/fire", self.number)
                 self.player = subprocess.Popen(["mpg123", "/home/pi/1MR-Phone/media/" + self.number + ".mp3", "-q"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         self.counting = False
@@ -107,24 +94,48 @@ class Dial():
 
     def reset(self):
         print ("Hangup")
-        client.send_message("cue/hangup", 1)
+        self.client.send_message("cue/hangup", 1)
         self.pulses = 0
         self.number = ""
         try:
             self.player.kill()
         except:
             pass
-
+        
 # ===== Main Script =====
+            
+def main():
+    # ===== Variables =====
 
+    # What ip & port number OSC sends to.
+    osc_ip = "192.168.1.1"
+    osc_port = "8000"
 
+    start = 1
 
-if __name__ == "__main__":
+    # Your phone GPIO pins, using BCIM numbers
+    pin_rotaryenable = 18  #Clockwise Rotary Circuit
+    pin_countrotary = 23   #Counter-clockwise Rotary Circuit
+    pin_hook = 24          #Hook or hangup Switch
+    
+    bouncetime_enable = 0.01
+    bouncetime_rotary = 0.01
+    bouncetime_hook = 0.01
+
+    rotaryenable = gpiozero.DigitalInputDevice(pin_rotaryenable, pull_up=True, bounce_time=bouncetime_enable)
+    countrotary = gpiozero.DigitalInputDevice(pin_countrotary, pull_up=True, bounce_time=bouncetime_rotary)
+    hook = gpiozero.DigitalInputDevice(pin_hook, pull_up=True, bounce_time=bouncetime_hook)
+    parser = argparse.ArgumentParser()
+    
+    parser.add_argument("--ip", default=osc_ip, help="The ip of the OSC server")
+    parser.add_argument("--port", type=int, default=osc_port, help="The port the OSC server is listening on")
+    args = parser.parse_args()
+    client = connect(args.ip, args.port)
     if (start == 1):
         start = 0
         print("Phone On")
         client.send_message("Startup Complete", 1)   
-    dial = Dial()
+    dial = Dial(client)
     countrotary.when_deactivated = dial.addpulse
     countrotary.when_activated = dial.addpulse
     rotaryenable.when_activated = dial.startcounting
@@ -133,4 +144,6 @@ if __name__ == "__main__":
     hook.when_deactivated = dial.startcalling
     while True:
         time.sleep(1)
-     
+        
+if __name__ == "__main__":
+    main()    
