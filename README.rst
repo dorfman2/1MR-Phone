@@ -34,7 +34,7 @@ Boot up the RaspberryPi and login. First update your Repositories:
 
 .. code-block:: bash
 
-        $ sudo apt-get update && apt-get upgrade -y
+        $ sudo apt-get update && sudo apt-get upgrade -y
         
 Install Python3, mpg123, git, and python3-pip
 
@@ -46,7 +46,8 @@ Install python-osc
 
 .. code-block:: bash
 
-        $ pip install python-osc
+        $ sudo pip install python-osc
+        $ sudo pip3 install python-osc
         
 Navigate to your root directory (/home/pi) and install 1MR-Phone using pip:
 
@@ -69,7 +70,7 @@ Move sp.service to systemd if you want this to run at boot. Navigate to the fold
 
         $ cd /home/pi/1MR-Phone
         $ sudo cp sp.service /etc/systemd/system/sp.service
-        $ sudo systemctl enable myscript.service
+        $ sudo systemctl enable sp.service
        
 
  
