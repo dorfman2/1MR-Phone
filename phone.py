@@ -1,19 +1,38 @@
 #!/usr/bin/python3
 
 # 1 Mile Radius Telephone is an interactive rotary telephone created for the 1 Mile Radius Project.
-# Version 2.0, written by Jeffrey Dorfman, using code from Raaff (https://github.com/Raaff)
-# 21 March, 2017
+# Version 2.1, written by Jeffrey Dorfman & Aaron Sanderholm, using code from Raaff (https://github.com/Raaff)
+# 24 March, 2018
 
 import subprocess
 import gpiozero
 import math
 import os, time
 import argparse
-from pythonosc import udp_client
 import configparser
+from pythonosc import udp_client
 
+global start
+start = True
 
+config = configparser.ConfigParser()
+config.read('config.ini')
+# ===== Variables =====
 
+# What ip & port number OSC sends to.
+
+osc_ip = config['osc']['ip']
+osc_port = int(config['osc']['port'])
+
+# Your phone GPIO pins, using BCIM numbers
+pin_rotaryenable = int(config['pin']['rotaryenable']) #Clockwise Rotary Circuit
+pin_countrotary = int(config['pin']['countrotary'])   #Counter-clockwise Rotary Circuit
+pin_hook = int(config['pin']['hook'])                 #Hook or hangup Switch
+    
+bouncetime_enable = int(config['bouncetime']['enable'])
+bouncetime_rotary = int(config['bouncetime']['rotary'])
+bouncetime_hook = int(config['bouncetime']['hook'])
+    
 def connect(ip, port):
      try:
          client = udp_client.SimpleUDPClient(ip, port)
@@ -22,19 +41,15 @@ def connect(ip, port):
          print("woot")
          exit(1)
      return client
-#    cfg = configparser.ConfigParser()
- #   cfg.read("config.ini")
-  #  sections = cfg.sections()
-#   api_key = cfg.get('section', 'api_key')
-#    print(api_key)
+#     cfg = configparser.ConfigParser()
+#     cfg.read("config.ini")
+#     sections = cfg.sections()
+#     api_key = cfg.get('section', 'api_key')
+#     print(api_key)
 
 
 # ===== Class Definitions =====
 
-
-def shutdown():
-	subprocess.Popen(["sudo shutdown -h now"], shell=True)
-    
 class Dial():
     def __init__(self, client):
         self.pulses = 0
@@ -62,15 +77,19 @@ class Dial():
                     self.number += "0"
                 else:
                     self.number += str(math.floor(self.pulses / 2))
+                    
             self.pulses = 0
+            
             if self.number == "633": #If you dial "OFF" turns off Phone
                 self.client.send_message("Phone has entered Shutdown", 1)
                 shutdown()
                 return
+            
             if self.number == "7867": #If you dial "STOP" exits python script, comment out once debugging is complete
                 self.client.send_message("Phone has closed program, please restart to enable", 1)
-                exit()
+                close()
                 return
+            
             elif os.path.isfile("/home/pi/1MR-Phone/media/" + self.number + ".mp3"):
                 print("start player with number = %s" % self.number)
                 
@@ -105,22 +124,7 @@ class Dial():
 # ===== Main Script =====
             
 def main():
-    # ===== Variables =====
 
-    # What ip & port number OSC sends to.
-    osc_ip = "192.168.1.1"
-    osc_port = "8000"
-
-    start = 1
-
-    # Your phone GPIO pins, using BCIM numbers
-    pin_rotaryenable = 18  #Clockwise Rotary Circuit
-    pin_countrotary = 23   #Counter-clockwise Rotary Circuit
-    pin_hook = 24          #Hook or hangup Switch
-    
-    bouncetime_enable = 0.01
-    bouncetime_rotary = 0.01
-    bouncetime_hook = 0.01
 
     rotaryenable = gpiozero.DigitalInputDevice(pin_rotaryenable, pull_up=True, bounce_time=bouncetime_enable)
     countrotary = gpiozero.DigitalInputDevice(pin_countrotary, pull_up=True, bounce_time=bouncetime_rotary)
@@ -130,11 +134,8 @@ def main():
     parser.add_argument("--ip", default=osc_ip, help="The ip of the OSC server")
     parser.add_argument("--port", type=int, default=osc_port, help="The port the OSC server is listening on")
     args = parser.parse_args()
+    global client 
     client = connect(args.ip, args.port)
-    if (start == 1):
-        start = 0
-        print("Phone On")
-        client.send_message("Startup Complete", 1)   
     dial = Dial(client)
     countrotary.when_deactivated = dial.addpulse
     countrotary.when_activated = dial.addpulse
@@ -145,5 +146,16 @@ def main():
     while True:
         time.sleep(1)
         
+
+def shutdown():
+    subprocess.Popen(["sudo shutdown -h now"], shell=True)
+
+def close():
+    exit(0)
+        
 if __name__ == "__main__":
     main()    
+    if (start == 1):
+        start = 0
+        print("Phone On")
+        client.send_message("Startup Complete", 1) 
