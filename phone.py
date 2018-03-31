@@ -1,9 +1,14 @@
 #!/usr/bin/python3
 
-# 1 Mile Radius Telephone is an interactive rotary telephone created for the 1 Mile Radius Project.
-# Version 2.1, written by Jeffrey Dorfman & Aaron Sanderholm, using code from Raaff (https://github.com/Raaff)
+# 1MR-Phone Version 2.1 
 # 24 March, 2018
+# Written by Jeffrey Dorfman, with help from Aaron Sanderholm, based on code from Raaff (https://github.com/Raaff)
+# 1 Mile Radius Telephone is an interactive rotary telephone created for the 1 Mile Radius Project.
+# 
+# 
+#
 
+# ===== Import Dependencies =====
 import subprocess
 import gpiozero
 import math
@@ -12,27 +17,39 @@ import argparse
 import configparser
 from pythonosc import udp_client
 
+
+# ===== Global Variables =====
+global client
 global start
+
 start = True
 
+
+# ===== Config.ini =====
 config = configparser.ConfigParser()
 config.read('config.ini')
-# ===== Variables =====
+
+
+# ===== Variables (called from config.ini)=====
 
 # What ip & port number OSC sends to.
+osc_ip = config.get('osc', 'ip')
+osc_port = int(config.get('osc', 'port'))
 
-osc_ip = config['osc']['ip']
-osc_port = int(config['osc']['port'])
 
 # Your phone GPIO pins, using BCIM numbers
-pin_rotaryenable = int(config['pin']['rotaryenable']) #Clockwise Rotary Circuit
-pin_countrotary = int(config['pin']['countrotary'])   #Counter-clockwise Rotary Circuit
-pin_hook = int(config['pin']['hook'])                 #Hook or hangup Switch
+pin_rotaryenable = int(config.get('pin', 'rotaryenable')) #Clockwise Rotary Circuit
+pin_countrotary = int(config.get('pin', 'countrotary'))   #Counter-clockwise Rotary Circuit
+pin_hook = int(config.get('pin', 'hook'))                     #Hook or hangup Switch
     
-bouncetime_enable = int(config['bouncetime']['enable'])
-bouncetime_rotary = int(config['bouncetime']['rotary'])
-bouncetime_hook = int(config['bouncetime']['hook'])
-    
+
+# Bouncetimes
+bouncetime_enable = int(config.get('bouncetime', 'enable'))
+bouncetime_rotary = int(config.get('bouncetime', 'rotary'))
+bouncetime_hook = int(config.get('bouncetime', 'hook'))
+
+
+# ===== Test for Network =====    
 def connect(ip, port):
      try:
          client = udp_client.SimpleUDPClient(ip, port)
@@ -49,7 +66,6 @@ def connect(ip, port):
 
 
 # ===== Class Definitions =====
-
 class Dial():
     def __init__(self, client):
         self.pulses = 0
@@ -95,8 +111,10 @@ class Dial():
                 
                 try:
                     self.player.kill()
+                    
                 except:
                     pass
+                
                 self.client.send_message("cue/" + self.number + "/fire", self.number)
                 self.player = subprocess.Popen(["mpg123", "/home/pi/1MR-Phone/media/" + self.number + ".mp3", "-q"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
@@ -118,24 +136,37 @@ class Dial():
         self.number = ""
         try:
             self.player.kill()
+            
         except:
             pass
-        
+
+
+# OSC Class - possibly pull out 
+class OSC():
+    def __init__(self, client):
+
+
+
 # ===== Main Script =====
-            
 def main():
 
-
+    # Define Pins
     rotaryenable = gpiozero.DigitalInputDevice(pin_rotaryenable, pull_up=True, bounce_time=bouncetime_enable)
     countrotary = gpiozero.DigitalInputDevice(pin_countrotary, pull_up=True, bounce_time=bouncetime_rotary)
     hook = gpiozero.DigitalInputDevice(pin_hook, pull_up=True, bounce_time=bouncetime_hook)
     parser = argparse.ArgumentParser()
     
+    # Configure OSC
     parser.add_argument("--ip", default=osc_ip, help="The ip of the OSC server")
     parser.add_argument("--port", type=int, default=osc_port, help="The port the OSC server is listening on")
-    args = parser.parse_args()
-    global client 
+    args = parser.parse_args() 
     client = connect(args.ip, args.port)
+    
+    
+    
+    
+    
+    
     dial = Dial(client)
     countrotary.when_deactivated = dial.addpulse
     countrotary.when_activated = dial.addpulse
