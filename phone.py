@@ -44,35 +44,28 @@ pin_hook = int(config.get('pin', 'hook'))                     #Hook or hangup Sw
     
 
 # Bouncetimes
-bouncetime_enable = int(config.get('bouncetime', 'enable'))
-bouncetime_rotary = int(config.get('bouncetime', 'rotary'))
-bouncetime_hook = int(config.get('bouncetime', 'hook'))
+bouncetime_enable = float(config.get('bouncetime', 'enable'))
+bouncetime_rotary = float(config.get('bouncetime', 'rotary'))
+bouncetime_hook = float(config.get('bouncetime', 'hook'))
 
 
 # ===== Test for Network =====    
-def connect(ip, port):
-     try:
-         client = udp_client.SimpleUDPClient(ip, port)
-     except OSError as err:
-         print("OS error: {0}".format(err))
-         print("woot")
-         exit(1)
-     return client
-#     cfg = configparser.ConfigParser()
-#     cfg.read("config.ini")
-#     sections = cfg.sections()
-#     api_key = cfg.get('section', 'api_key')
-#     print(api_key)
+
 
 
 # ===== Class Definitions =====
 class Dial():
-    def __init__(self, client):
+    client = None
+    
+    def __init__(self, ip, port):
         self.pulses = 0
         self.number = ""
         self.counting = True
         self.calling = False
-        self.client = client
+        self.client = OSC(ip, port)
+        
+    def ack_message(self):
+        self.client.send_message("Sending null message", 1)
 
     def startcalling(self):
         self.calling = True
@@ -117,7 +110,8 @@ class Dial():
                 
                 self.client.send_message("cue/" + self.number + "/fire", self.number)
                 self.player = subprocess.Popen(["mpg123", "/home/pi/1MR-Phone/media/" + self.number + ".mp3", "-q"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
+                
+        print("Stop counting. Got number %s.\n" % self.number)
         self.counting = False
 
     def addpulse(self):
@@ -141,9 +135,33 @@ class Dial():
             pass
 
 
-# OSC Class - possibly pull out 
+#OSC Class - possibly pull out 
 class OSC():
-    def __init__(self, client):
+    ip = None
+    port = None
+    client = None
+    
+    def __init__(self, ip, port):
+        self.ip = ip
+        self.port = port
+        self.connect()
+        
+    def connect(self):
+        self.client = udp_client.SimpleUDPClient(self.ip, self.port)
+        
+    def send_message(self, string, number):
+        try:
+            self.client.send_message(string, number)
+            return True
+        except:
+            print("Couldn't send!!!")
+            print("Reconnecting!")
+            self.connect()
+                
+                
+                
+            
+            
 
 
 
@@ -159,15 +177,9 @@ def main():
     # Configure OSC
     parser.add_argument("--ip", default=osc_ip, help="The ip of the OSC server")
     parser.add_argument("--port", type=int, default=osc_port, help="The port the OSC server is listening on")
-    args = parser.parse_args() 
-    client = connect(args.ip, args.port)
+    args = parser.parse_args()
+    dial = Dial(ip = args.ip, port = args.port)
     
-    
-    
-    
-    
-    
-    dial = Dial(client)
     countrotary.when_deactivated = dial.addpulse
     countrotary.when_activated = dial.addpulse
     rotaryenable.when_activated = dial.startcounting
@@ -186,7 +198,3 @@ def close():
         
 if __name__ == "__main__":
     main()    
-    if (start == 1):
-        start = 0
-        print("Phone On")
-        client.send_message("Startup Complete", 1) 
