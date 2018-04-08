@@ -71,17 +71,34 @@ Move sp.service to systemd if you want this to run at boot. Navigate to the fold
         $ cd /home/pi/1MR-Phone
         $ sudo cp sp.service /etc/systemd/system/sp.service
         $ sudo systemctl enable sp.service
+        
+        
+
        
 
  
 
 Use
 -----
+
 Copy your MP3 Files to /media, rename them to digits you want to be dialed "123.mp3."
 
 I prefer to use FileZilla for this.
 
 
+You can start and stop the service by using these commands.
+
+.. code-block:: bash
+        
+        $ sudo systemctl stop sp.service
+        $ sudo systemctl start sp.service
+        
+To disable the service for later debugging
+
+.. code-block:: bash
+
+        $ sudo systemctl disable sp.service
+        $ sudo systemctl daemon-reload
 Hardware
 -----
 List

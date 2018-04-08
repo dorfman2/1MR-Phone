@@ -18,7 +18,6 @@ import configparser
 
 
 # ===== Global Variables =====
-global client
 global start
 start = True
 
@@ -45,7 +44,6 @@ bouncetime_hook = float(config.get('bouncetime', 'hook'))
 
 # ===== Class Definitions =====
 class dial():
-    client = None
     
     def __init__(self, ip, port):
         self.pulses = 0
