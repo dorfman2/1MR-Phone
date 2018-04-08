@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-# 1MR-Phone Version 2.1 
+# 1MR-Phone Version 2.3 
 # 24 March, 2018
 # Written by Jeffrey Dorfman, with help from Aaron Sanderholm, based on code from Raaff (https://github.com/Raaff)
 # 1 Mile Radius Telephone is an interactive rotary telephone created for the 1 Mile Radius Project.
@@ -14,9 +14,12 @@ import gpiozero
 import math
 import os, time
 import configparser
+import argparse
+from pythonosc import udp_client
 
 
 # ===== Global Variables =====
+global client
 global start
 start = True
 
@@ -25,9 +28,11 @@ start = True
 config = configparser.ConfigParser()
 config.read('config.ini')
 
-
+    
 # ===== Variables (called from config.ini)=====
 
+osc_ip = config.get('osc', 'ip')
+osc_port = int(config.get('osc', 'port'))
 
 # Your phone GPIO pins, using BCIM numbers
 pin_rotaryenable = int(config.get('pin', 'rotaryenable')) #Clockwise Rotary Circuit
@@ -60,7 +65,11 @@ class Dial():
 
     def startcalling(self):
         self.calling = True
-        print("Pickup")
+        try:
+            client.send_message("Pickup", 5)
+        except:
+             pass
+        # print("Pickup")
         self.player = subprocess.Popen(["mpg123", "-q", "/home/pi/1MR-Phone/media/dialtone.mp3", ], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     def stopcalling(self):
@@ -89,29 +98,42 @@ class Dial():
                 return
             
             elif os.path.isfile("/home/pi/1MR-Phone/media/" + self.number + ".mp3"):
-                print("start player with number = %s" % self.number)
+                # print("start player with number = %s" % self.number)
                 
                 try:
                     self.player.kill()
                 except:
                     pass
+                
+                try:
+                    client.send_message("Track/GO/%s" % self.number, 5)
+                except:
+                    pass
 
                 self.player = subprocess.Popen(["mpg123", "/home/pi/1MR-Phone/media/" + self.number + ".mp3", "-q"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         
-        print("Stop counting. Got number %s.\n" % self.number)
+        try:
+            client.send_message("Dialed/%s" % self.number, 5)
+        except:
+             pass
+        # print("Stop counting. Got number %s.\n" % self.number)
         self.counting = False
 
     def addpulse(self):
-        print("addpulse")
+        # print("addpulse")
         if self.counting:
-            print("real addpulse")
+            # print("real addpulse")
             self.pulses += 1
 
     def getnumber(self):
         return self.number
 
     def reset(self):
-        print ("Hangup")
+        try:
+            client.send_message("Hangup", 5)
+        except:
+             pass
+        # print ("Hangup")
         self.pulses = 0
         self.number = ""
         try:
@@ -122,10 +144,22 @@ class Dial():
 # ===== Main Script =====
 
 if __name__ == "__main__":
+
+  
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--ip", default=osc_ip, help="The ip of the OSC server")
+    parser.add_argument("--port", type=int, default=osc_port, help="The port the OSC server is listening on")
+    args = parser.parse_args()
+    client = udp_client.SimpleUDPClient(args.ip, args.port)
+    
     if (start == 1):
         start = 0
-        print("Phone On")
-  
+        # print("Phone On")
+        try:
+            client.send_message("Phone ON", 5)
+        except:
+            pass
+        
     rotaryenable = gpiozero.DigitalInputDevice(pin_rotaryenable, pull_up=True, bounce_time=bouncetime_enable)
     countrotary = gpiozero.DigitalInputDevice(pin_countrotary, pull_up=True, bounce_time=bouncetime_rotary)
     hook = gpiozero.DigitalInputDevice(pin_hook, pull_up=True, bounce_time=bouncetime_hook)
