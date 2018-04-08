@@ -45,7 +45,10 @@ bouncetime_enable = float(config.get('bouncetime', 'enable'))
 bouncetime_rotary = float(config.get('bouncetime', 'rotary'))
 bouncetime_hook = float(config.get('bouncetime', 'hook'))
 
-subprocess.Popen(["amixer cset numid=1 400"], shell=True) # Sets the volume to +4db (maximum)
+subprocess.Popen(["amixer set Speaker 100%"], shell=True) # Sets the volume to 0db (maximum)
+subprocess.Popen(["amixer set Mic 75%"], shell=True)
+subprocess.Popen(["amixer set 'Auto Gain Control' on"], shell=True)
+
 
 # ===== Class Definitions =====
 
