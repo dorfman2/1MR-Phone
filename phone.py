@@ -13,7 +13,6 @@ import subprocess
 import gpiozero
 import math
 import os, time
-import argparse
 import configparser
 
 
@@ -41,19 +40,27 @@ bouncetime_enable = float(config.get('bouncetime', 'enable'))
 bouncetime_rotary = float(config.get('bouncetime', 'rotary'))
 bouncetime_hook = float(config.get('bouncetime', 'hook'))
 
+subprocess.Popen(["amixer cset numid=1 400"], shell=True) # Sets the volume to +4db (maximum)
 
 # ===== Class Definitions =====
-class dial():
+
+
+def shutdown():
+	subprocess.Popen(["sudo shutdown -h now"], shell=True)
     
-    def __init__(self, ip, port):
+def restart():
+	subprocess.Popen(["sudo reboot"], shell=True)
+    
+class Dial():
+    def __init__(self):
         self.pulses = 0
         self.number = ""
         self.counting = True
         self.calling = False
 
-
     def startcalling(self):
         self.calling = True
+        print("Pickup")
         self.player = subprocess.Popen(["mpg123", "-q", "/home/pi/1MR-Phone/media/dialtone.mp3", ], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     def stopcalling(self):
@@ -70,15 +77,15 @@ class dial():
                     self.number += "0"
                 else:
                     self.number += str(math.floor(self.pulses / 2))
-                    
+
             self.pulses = 0
             
             if self.number == "633": #If you dial "OFF" turns off Phone
                 shutdown()
                 return
             
-            if self.number == "7867": #If you dial "STOP" exits python script, comment out once debugging is complete
-                close()
+            if self.number == "7867": #If you dial "STOP" restarts
+                restart()
                 return
             
             elif os.path.isfile("/home/pi/1MR-Phone/media/" + self.number + ".mp3"):
@@ -86,12 +93,11 @@ class dial():
                 
                 try:
                     self.player.kill()
-                    
                 except:
                     pass
-                
+
                 self.player = subprocess.Popen(["mpg123", "/home/pi/1MR-Phone/media/" + self.number + ".mp3", "-q"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                
+        
         print("Stop counting. Got number %s.\n" % self.number)
         self.counting = False
 
@@ -110,27 +116,21 @@ class dial():
         self.number = ""
         try:
             self.player.kill()
-            
         except:
             pass
 
-def shutdown():
-    subprocess.Popen(["sudo shutdown -h now"], shell=True)
-
-def close():
-    print("Phone has shutdown")
-    exit(0)
-
-
 # ===== Main Script =====
-     
+
 if __name__ == "__main__":
-    
+    if (start == 1):
+        start = 0
+        print("Phone On")
+  
     rotaryenable = gpiozero.DigitalInputDevice(pin_rotaryenable, pull_up=True, bounce_time=bouncetime_enable)
     countrotary = gpiozero.DigitalInputDevice(pin_countrotary, pull_up=True, bounce_time=bouncetime_rotary)
     hook = gpiozero.DigitalInputDevice(pin_hook, pull_up=True, bounce_time=bouncetime_hook)
-    parser = argparse.ArgumentParser()
-    
+
+    dial = Dial()
     countrotary.when_deactivated = dial.addpulse
     countrotary.when_activated = dial.addpulse
     rotaryenable.when_activated = dial.startcounting
@@ -138,4 +138,4 @@ if __name__ == "__main__":
     hook.when_activated = dial.stopcalling
     hook.when_deactivated = dial.startcalling
     while True:
-        time.sleep(1) 
+        time.sleep(1)
