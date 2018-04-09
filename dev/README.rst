@@ -16,6 +16,8 @@ Useful commands
         $ arecord --device=hw:1,0 --format S16_LE --rate 44100 -V mono -c1 test.wav # To record
         $ amixer scontrols #list controls
         $ alsamixer -c 1 # Brings up digital faders for default 
+        $ amixer set 'Auto Gain Control' on # turn on Auto Gain Control
+        $ amixer set Speaker 100% # Max Volume
         
 
 Notes from Adafruit

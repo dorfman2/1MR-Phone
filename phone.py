@@ -31,6 +31,9 @@ config.read('config.ini')
     
 # ===== Variables (called from config.ini)=====
 
+# Your phone ID, if using multiple phones
+phone_id = config.get('phone', 'id')
+
 osc_ip = config.get('osc', 'ip')
 osc_port = int(config.get('osc', 'port'))
 
@@ -46,7 +49,7 @@ bouncetime_rotary = float(config.get('bouncetime', 'rotary'))
 bouncetime_hook = float(config.get('bouncetime', 'hook'))
 
 subprocess.Popen(["amixer set Speaker 100%"], shell=True) # Sets the volume to 0db (maximum)
-subprocess.Popen(["amixer set Mic 75%"], shell=True)
+subprocess.Popen(["amixer set Mic 25%"], shell=True)
 subprocess.Popen(["amixer set 'Auto Gain Control' on"], shell=True)
 
 
@@ -54,7 +57,9 @@ subprocess.Popen(["amixer set 'Auto Gain Control' on"], shell=True)
 
 
 def shutdown():
-	subprocess.Popen(["sudo shutdown -h now"], shell=True)
+    subprocess.Popen(["mpg123", "-q", "/home/pi/1MR-Phone/media/shutdown.mp3", ], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    time.sleep(5)
+    subprocess.Popen(["sudo shutdown -h now"], shell=True)
     
 def restart():
 	subprocess.Popen(["sudo reboot"], shell=True)
@@ -69,7 +74,7 @@ class Dial():
     def startcalling(self):
         self.calling = True
         try:
-            client.send_message("Pickup", 5)
+            client.send_message("Pickup", phone_id)
         except:
              pass
         # print("Pickup")
@@ -109,14 +114,14 @@ class Dial():
                     pass
                 
                 try:
-                    client.send_message("Track/GO/%s" % self.number, 5)
+                    client.send_message("Track/GO/%s" % self.number, phone_id)
                 except:
                     pass
 
                 self.player = subprocess.Popen(["mpg123", "/home/pi/1MR-Phone/media/" + self.number + ".mp3", "-q"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         
         try:
-            client.send_message("Dialed/%s" % self.number, 5)
+            client.send_message("Dialed/%s" % self.number, phone_id)
         except:
              pass
         # print("Stop counting. Got number %s.\n" % self.number)
@@ -133,7 +138,7 @@ class Dial():
 
     def reset(self):
         try:
-            client.send_message("Hangup", 5)
+            client.send_message("Hangup", phone_id)
         except:
              pass
         # print ("Hangup")
@@ -143,6 +148,7 @@ class Dial():
             self.player.kill()
         except:
             pass
+        
 
 # ===== Main Script =====
 
@@ -159,7 +165,7 @@ if __name__ == "__main__":
         start = 0
         # print("Phone On")
         try:
-            client.send_message("Phone ON", 5)
+            client.send_message("Phone ON", phone_id)
         except:
             pass
         
@@ -175,4 +181,4 @@ if __name__ == "__main__":
     hook.when_activated = dial.stopcalling
     hook.when_deactivated = dial.startcalling
     while True:
-        time.sleep(1)
+        time.sleep(0.1)
