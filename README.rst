@@ -13,16 +13,19 @@ It can be used without untilizing OSC, but be sure to install the dependacy unle
     
 This phone was designed and built for a interactive performance called One Mile Radius Project(1MR for short).
 
+Version 1.1.2 was used for a performance in April 2017 with 3 phones
+    
+Version 2.3 was used for a performance in April 2018 with 5 phones
+
 -----
 Installation
 -----
 
 Dependencies;
 
-    * Git
+    * git
     * gpiozero
     * python-osc
-    * python-pip
     * python3
     * python3-pip
     * mpg123
@@ -40,13 +43,12 @@ Install Python3, mpg123, git, and python3-pip
 
 .. code-block:: bash
 
-        $ sudo apt-get install git python-pip python3 python3-pip mpg123 python3-gpiozero
+        $ sudo apt-get install git python3 python3-pip mpg123 python3-gpiozero
         
 Install python-osc
 
 .. code-block:: bash
 
-        $ sudo pip install python-osc
         $ sudo pip3 install python-osc
         
 Navigate to your root directory (/home/pi) and install 1MR-Phone using pip:
@@ -56,13 +58,6 @@ Navigate to your root directory (/home/pi) and install 1MR-Phone using pip:
         $ cd
         $ git clone https://github.com/dorfman2/1MR-Phone.git
 
-Navigate into the folder and make /usr/bin/phone executable:
-
-.. code-block:: bash
-
-        $ cd /home/pi/1MR-Phone
-        $ sudo chmod +x /home/pi/1MR-Phone/phone.py
-
         
 Move sp.service to systemd if you want this to run at boot. Navigate to the folder first.
 
@@ -71,42 +66,52 @@ Move sp.service to systemd if you want this to run at boot. Navigate to the fold
         $ cd /home/pi/1MR-Phone
         $ sudo cp sp.service /etc/systemd/system/sp.service
         $ sudo systemctl enable sp.service
+        $ sudo systemctl daemon-reload
         
+If you're using a USB sound card, copy the asound.conf file. You may have to edit it depending on your setup.
         
+    .. code-block:: bash
+
+        $ cd /home/pi/1MR-Phone
+        $ sudo cp /dev/asound.conf /etc/asound.conf
+    
 
        
 
  
-
 Use
 -----
 
-Copy your MP3 Files to /media, rename them to digits you want to be dialed "123.mp3."
+* Copy your MP3 Files to /media, rename them to digits you want to be dialed "123.mp3."
+** I prefer to use FileZilla for this. https://filezilla-project.org
 
-I prefer to use FileZilla for this.
+* To make changes to ip/port address, phone ID, and bouncetimes, use "config.ini."
 
-
-You can start and stop the service by using these commands.
+* For troubleshooting, you can start and stop the service by using these commands.
 
 .. code-block:: bash
         
         $ sudo systemctl stop sp.service
         $ sudo systemctl start sp.service
         
-To disable the service for later debugging
+* To disable the service entirely (you can renable it later)
 
 .. code-block:: bash
 
         $ sudo systemctl disable sp.service
         $ sudo systemctl daemon-reload
+        
+        
 Hardware
 -----
-List
 
 * Rotary Telephone
 * Raspberry Pi w/ Memory card
 * 5v Power Supply
 * Ethernet Cable
+* 1/8" Male TRS connector
+* (OPTIONAL) USB Sound Card
+
 
 Build
 -----
@@ -123,10 +128,16 @@ Build
 - Dial = 18 (Hardware Pin 12)
 - Ground (Hardware Pin 14)
 - Rotary = 23 (Hardware Pin 16)
-- Reciever = 24 (Hardware Pin 18)
+- Reciever Switch = 24 (Hardware Pin 18)
+
+5. Wire the two wires to the speaker in the Handset to 1/8" connector. You can use a USB audio card (OPTIONAL). I used Audio USB adapter from Adafruit.
+
+- Speaker Negative to Sleeve
+- Speaker Positive to Tip and Ring
 
 5. Connect to ethernet
-6. connect to Power
+6. Connect to Power
+
 
 ----------
 Changelog
@@ -145,26 +156,6 @@ v2.0 - 21 Mar. 2018
     - Updated .md with a more accurate tutorial
     - removed TTS functions (since this will not be online)
     
------------------
-Original Comments
------------------
+V2.3 - April 2018
+    - Added stability, cleaning, and Network error checks
     
-    > This Uses Open SoundControl for Python
-    > Copyright (C) 2002 Daniel Holth, Clinton McChesney
-    > 
-    > This library is free software; you can redistribute it and/or modify it under
-    > the terms of the GNU Lesser General Public License as published by the Free
-    > Software Foundation; either version 2.1 of the License, or (at your option) any
-    > later version.
-    > 
-    > This library is distributed in the hope that it will be useful, but WITHOUT ANY
-    > WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-    > PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
-    > details.
-    
-    > You should have received a copy of the GNU Lesser General Public License along
-    > with this library; if not, write to the Free Software Foundation, Inc., 59
-    > Temple Place, Suite 330, Boston, MA  02111-1307  USA
-    
-    > For questions regarding this module contact Daniel Holth <dholth@stetson.edu>
-    > or visit http://www.stetson.edu/~ProctoLogic/
