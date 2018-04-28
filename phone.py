@@ -36,6 +36,8 @@ config.read('config.ini')
 # Your phone ID, if using multiple phones
 phone_id = config.get('phone', 'id')
 osc_enable = config.get('phone', 'osc')
+track_limit = int(config.get('phone', 'track_limit'))
+
 
 osc_ip = config.get('osc', 'ip')
 osc_port = int(config.get('osc', 'port'))
@@ -75,14 +77,17 @@ def restart():
 class Microphone():
     rec_subprocess = None
     track_count = 0
+    track_limit = 0
 
     def get_track_name(self):
         dir_name = "/home/pi/1MR-Phone/media"
         file_name = "%s.wav" % (self.track_count)
         return "%s/%s" % (dir_name, file_name)
     
-    def __init__(self):
+    def __init__(self, track_count=0, track_limit=2):
         self.base_epoch = int(time.time())
+        self.track_count = track_count
+        self.track_limit = track_limit
                 
     def recordStart(self):
         self.track_count += 1
@@ -99,6 +104,8 @@ class Microphone():
                 stdin=subprocess.PIPE,
                 stderr=subprocess.STDOUT)
 
+        if (self.track_count >= self.track_limit):
+            self.track_count = 0
         return file_name
 
 
@@ -108,12 +115,13 @@ class Microphone():
 
 
 class Dial():
-    def __init__(self):
+    def __init__(self, track_limit):
         self.pulses = 0
         self.number = ""
         self.counting = True
         self.calling = False
-        self.microphone = Microphone()
+        self.microphone = Microphone(track_limit)
+
 
     def startcalling(self):
         self.calling = True
@@ -224,7 +232,7 @@ if __name__ == "__main__":
     countrotary = gpiozero.DigitalInputDevice(pin_countrotary, pull_up=True, bounce_time=bouncetime_rotary)
     hook = gpiozero.DigitalInputDevice(pin_hook, pull_up=True, bounce_time=bouncetime_hook)
 
-    dial = Dial()
+    dial = Dial(track_limit=track_limit)
     countrotary.when_deactivated = dial.addpulse
     countrotary.when_activated = dial.addpulse
     rotaryenable.when_activated = dial.startcounting
