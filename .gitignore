@@ -1,0 +1,5 @@
+media
+.idea
+venv
+config.ini
+sync_me.sh
