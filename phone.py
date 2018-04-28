@@ -75,11 +75,10 @@ def restart():
 class Microphone():
     rec_subprocess = None
     track_count = 0
-    base_epoch = 0
 
     def get_track_name(self):
-        dir_name = "/home/pi"
-        file_name = "%s_%s.wav" % (self.base_epoch, self.track_count)
+        dir_name = "/home/pi/1MR-Phone/media"
+        file_name = "%s.wav" % (self.track_count)
         return "%s/%s" % (dir_name, file_name)
     
     def __init__(self):
@@ -99,10 +98,7 @@ class Microphone():
                 shell=False,
                 stdin=subprocess.PIPE,
                 stderr=subprocess.STDOUT)
-        #sys.stdout.flush()
-        #for line in iter(self.rec_subprocess.stdout.readline, b''):
-        #    sys.stdout.flush()
-        #    print(">>> " + line.rstrip())
+
         return file_name
 
 
@@ -125,8 +121,8 @@ class Dial():
             client.send_message("/Phone/" + phone_id + "/Pickup", 50)
         except:
              pass
-        # print("Pickup")
-        self.player = subprocess.Popen(["mpg123", "-q", "/home/pi/1MR-Phone/media/dialtone.mp3", ], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        print("Pickup")
+        self.player = subprocess.Popen(["aplay", "-q", "--device=plughw:1,0", "/home/pi/1MR-Phone/media/dialtone.wav"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     def stopcalling(self):
         self.calling = False
@@ -154,11 +150,16 @@ class Dial():
                 return
             
             if self.number == "732": #start recording audio
+                try:
+                    self.player.kill()
+                except:
+                    pass
+                
                 self.microphone.recordStart()
                 return
             
-            elif os.path.isfile("/home/pi/1MR-Phone/media/" + self.number + ".mp3"):
-                # print("start player with number = %s" % self.number)
+            elif os.path.isfile("/home/pi/1MR-Phone/media/" + self.number + ".wav"):
+                print("start player with number = %s" % self.number)
                 
                 try:
                     self.player.kill()
@@ -170,15 +171,15 @@ class Dial():
                 except:
                     pass
 
-                self.player = subprocess.Popen(["mpg123", "/home/pi/1MR-Phone/media/" + self.number + ".mp3", "-q"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                self.player = subprocess.Popen(["aplay", "-q", "--device=plughw:1,0", "/home/pi/1MR-Phone/media/" + self.number + ".wav"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         
-        # print("Stop counting. Got number %s.\n" % self.number)
+        print("Stop counting. Got number %s.\n" % self.number)
         self.counting = False
 
     def addpulse(self):
-        # print("addpulse")
+        print("addpulse")
         if self.counting:
-            # print("real addpulse")
+            print("real addpulse")
             self.pulses += 1
 
     def getnumber(self):
@@ -191,7 +192,7 @@ class Dial():
            client.send_message("/Phone/" + phone_id + "/Hangup", 51)
         except:
              pass
-        # print ("Hangup")
+        print ("Hangup")
         self.pulses = 0
         self.number = ""
 
@@ -213,7 +214,7 @@ if __name__ == "__main__":
     
     if (start == 1):
         start = 0
-        # print("Phone On")
+        print("Phone On")
         try:
             client.send_message("/Phone/" + phone_id + "/ON", phone_id)
         except:
