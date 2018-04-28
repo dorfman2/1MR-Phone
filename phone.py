@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-# 1MR-Phone Version 2.3 
+# 1MR-Phone Version 2.4 
 # 24 March, 2018
 # Written by Jeffrey Dorfman, with help from Aaron Sanderholm, based on code from Raaff (https://github.com/Raaff)
 # 1 Mile Radius Telephone is an interactive rotary telephone created for the 1 Mile Radius Project.
@@ -12,9 +12,11 @@
 import subprocess
 import gpiozero
 import math
-import os, time
+import os
+import time
 import configparser
 import argparse
+import shlex
 from pythonosc import udp_client
 
 
@@ -51,7 +53,7 @@ bouncetime_hook = float(config.get('bouncetime', 'hook'))
 
 
 subprocess.Popen(["amixer -q set Speaker 100%"], shell=True) # Sets the volume to 0db (maximum)
-#subprocess.Popen(["amixer -q set Mic 25%"], shell=True)
+subprocess.Popen(["amixer -q set Mic 25%"], shell=True)
 #subprocess.Popen(["amixer -q set 'Auto Gain Control' on"], shell=True)
 
 
@@ -63,17 +65,59 @@ def shutdown():
     time.sleep(5)
     subprocess.Popen(["sudo shutdown -h now"], shell=True)
     
+    
 def restart():
     subprocess.Popen(["mpg123", "-q", "/home/pi/1MR-Phone/media/restart.mp3"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     time.sleep(5)
     subprocess.Popen(["sudo reboot"], shell=True)
+
+
+class Microphone():
+    rec_subprocess = None
+    track_count = 0
+    base_epoch = 0
+
+    def get_track_name(self):
+        dir_name = "/home/pi"
+        file_name = "%s_%s.wav" % (self.base_epoch, self.track_count)
+        return "%s/%s" % (dir_name, file_name)
     
+    def __init__(self):
+        self.base_epoch = int(time.time())
+                
+    def recordStart(self):
+        self.track_count += 1
+        os.system("pkill -f /usr/bin/arecord")
+        time.sleep(0.1)
+        file_name = self.get_track_name()
+        print("Recording to %s" % file_name)
+        command = "/usr/bin/arecord --device=hw:1,0 --format=S16_LE --rate=44100 -c1 %s" % file_name
+        args = shlex.split(command)
+
+        self.rec_subprocess = subprocess.Popen(
+                args,
+                shell=False,
+                stdin=subprocess.PIPE,
+                stderr=subprocess.STDOUT)
+        #sys.stdout.flush()
+        #for line in iter(self.rec_subprocess.stdout.readline, b''):
+        #    sys.stdout.flush()
+        #    print(">>> " + line.rstrip())
+        return file_name
+
+
+    def recordStop(self):
+        self.rec_subprocess.kill()
+        
+
+
 class Dial():
     def __init__(self):
         self.pulses = 0
         self.number = ""
         self.counting = True
         self.calling = False
+        self.microphone = Microphone()
 
     def startcalling(self):
         self.calling = True
@@ -109,6 +153,10 @@ class Dial():
                 restart()
                 return
             
+            if self.number == "732": #start recording audio
+                self.microphone.recordStart()
+                return
+            
             elif os.path.isfile("/home/pi/1MR-Phone/media/" + self.number + ".mp3"):
                 # print("start player with number = %s" % self.number)
                 
@@ -138,17 +186,16 @@ class Dial():
 
     def reset(self):
         try:
+           self.player.kill()
+           self.microphone.recordStop()
            client.send_message("/Phone/" + phone_id + "/Hangup", 51)
         except:
              pass
         # print ("Hangup")
         self.pulses = 0
         self.number = ""
-        try:
-            self.player.kill()
-        except:
-            pass
-        
+
+
             
 # ===== Main Script =====
 
