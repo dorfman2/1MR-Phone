@@ -2,4 +2,4 @@ media
 .idea
 venv
 config.ini
-sync_me.sh
+sync_*.sh
