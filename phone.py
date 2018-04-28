@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-# 1MR-Phone Version 2.4 
+# 1MR-Phone Version 2.3 
 # 24 March, 2018
 # Written by Jeffrey Dorfman, with help from Aaron Sanderholm, based on code from Raaff (https://github.com/Raaff)
 # 1 Mile Radius Telephone is an interactive rotary telephone created for the 1 Mile Radius Project.
@@ -63,27 +63,11 @@ def shutdown():
     time.sleep(5)
     subprocess.Popen(["sudo shutdown -h now"], shell=True)
     
-    
 def restart():
     subprocess.Popen(["mpg123", "-q", "/home/pi/1MR-Phone/media/restart.mp3"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     time.sleep(5)
     subprocess.Popen(["sudo reboot"], shell=True)
-
-
-class Microphone():
-    rec_subprocess = None
-    track_count = 0
     
-    def recordStart(self):
-        self.track_count += 1
-        self.rec_subprocess = subprocess.Popen(["arecord --device=hw:1,0 --format S16_LE --rate 44100 -c1 %s.wav" %self.track_count], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        
-        
-    def recordStop(self):
-        self.rec_subprocess.terminate()
-        
-
-
 class Dial():
     def __init__(self):
         self.pulses = 0
@@ -165,7 +149,6 @@ class Dial():
         except:
             pass
         
-
             
 # ===== Main Script =====
 
