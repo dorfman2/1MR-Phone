@@ -9,7 +9,7 @@ Description
 -----
 This module contains python 3 script to operate an interactive, rotary telephone. It plays back different audio files when different numbers are dialed. It features an OSC client to provide interactivity with audio & video elements on the same network. 
 
-It can be used without untilizing OSC, but be sure to install the dependacy unless you want to comment out all the references
+It can be used without using OSC.
     
 This phone was designed and built for a interactive performance called One Mile Radius Project(1MR for short).
 
@@ -17,9 +17,12 @@ Version 1.1.2 was used for a performance in April 2017 with 3 phones
     
 Version 2.3 was used for a performance in April 2018 with 5 phones
 
+
 -----
 Installation
 -----
+
+This was designed and built on Raspian Stretch Lite
 
 Dependencies;
 
@@ -29,7 +32,8 @@ Dependencies;
     * python3
     * python3-pip
     * mpg123
-    
+  
+      
 -----
 To Install Dependencies & 1MR-Phone
 -----
