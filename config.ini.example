@@ -8,7 +8,7 @@ track_limit = 2
 
 # What ip & port number OSC sends to.
 [osc]
-ip = 172.16.10.16
+ip = 127.0.0.1
 port = 8000
     
 
