@@ -3,3 +3,4 @@ media
 venv
 config.ini
 sync_*.sh
+logs
