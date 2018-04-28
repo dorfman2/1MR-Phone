@@ -69,6 +69,8 @@ def restart():
     subprocess.Popen(["sudo reboot"], shell=True)
     
 class Dial():
+    last_count_time = 0
+
     def __init__(self):
         self.pulses = 0
         self.number = ""
@@ -76,6 +78,7 @@ class Dial():
         self.calling = False
 
     def startcalling(self):
+        self.last_count_time = int(time.time())
         self.calling = True
         try:
             client.send_message("/Phone/" + phone_id + "/Pickup", 50)
@@ -100,6 +103,7 @@ class Dial():
                     self.number += str(math.floor(self.pulses / 2))
 
             self.pulses = 0
+
             
             if self.number == "633": #If you dial "OFF" turns off Phone
                 shutdown()
@@ -130,6 +134,7 @@ class Dial():
     def addpulse(self):
         # print("addpulse")
         if self.counting:
+            self.last_count = int(time.time())
             # print("real addpulse")
             self.pulses += 1
 
@@ -183,5 +188,17 @@ if __name__ == "__main__":
     rotaryenable.when_deactivated = dial.stopcounting
     hook.when_activated = dial.stopcalling
     hook.when_deactivated = dial.startcalling
+
+    delay_int = 0
     while True:
+        if dial.calling:
+            current_time = int(time.time())
+            delay = current_time - dial.last_count_time
+            if int(delay) != delay_int:
+                print("Dial delay is %s" % delay)
+                delay_int = int(delay)
+            if delay > 3:
+                print("WHY AREN'T WE STOPPING?")
+                dial.stopcounting()
+
         time.sleep(0.5)
