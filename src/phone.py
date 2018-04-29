@@ -2,7 +2,7 @@
 
 # 1MR-Phone Version 2.4 
 # 24 March, 2018
-# Written by Jeffrey Dorfman, with help from Aaron Sanderholm, based on code from Raaff (https://github.com/Raaff)
+# Written by Jeffrey Dorfman, with help from Aaron Saderholm, based on code from Raaff (https://github.com/Raaff)
 # 1 Mile Radius Telephone is an interactive rotary telephone created for the 1 Mile Radius Project.
 # 
 # 
