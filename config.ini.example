@@ -1,4 +1,8 @@
 # ===== Variables for Phone.py=====
+[config]
+playback_hw_device = plughw:1,0
+media_path = /home/pi/1MR-Phone/media
+recording_path = /home/pi/1MR-Phone/recordings
 
 # if using a multiphone setup, to identify phones
 [phone]
@@ -20,7 +24,6 @@ port = 8000
 rotaryenable = 18
 countrotary = 23
 hook = 24             
-
 
 # Bouncetimes for the switches, only use if you're getting errors.
 [bouncetime]

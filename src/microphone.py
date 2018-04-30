@@ -11,14 +11,14 @@ class Microphone:
     track_limit = 0
 
     def get_track_name(self):
-        dir_name = "/home/pi/1MR-Phone/media"
         file_name = "%s.wav" % self.track_count
-        return "%s/%s" % (dir_name, file_name)
+        return "%s/%s" % (self.recording_path, file_name)
 
-    def __init__(self, track_count=0, track_limit=2):
+    def __init__(self, recording_path, track_count=0, track_limit=2):
         self.base_epoch = int(time.time())
         self.track_count = track_count
         self.track_limit = track_limit
+        self.recording_path = recording_path
 
     def record_start(self):
         self.track_count += 1
