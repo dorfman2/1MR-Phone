@@ -62,31 +62,29 @@ subprocess.Popen(["amixer -q set Mic 25%"], shell=True)
 # ===== Class Definitions =====
 
 
+
+
+
 class Microphone():
-    
     rec_subprocess = None
     track_count = 0
     track_limit = 0
-    
-    
-    def __init__(self, track_count=0, track_limit=99):
-        self.track_count = track_count
-        self.track_limit = track_limit
-        
-        
+
     def get_track_name(self):
         dir_name = "/home/pi/1MR-Phone/media"
         file_name = "%s.wav" % (self.track_count)
         return "%s/%s" % (dir_name, file_name)
     
+    def __init__(self, track_count=0, track_limit=2):
+        self.base_epoch = int(time.time())
+        self.track_count = track_count
+        self.track_limit = track_limit
                 
     def recordStart(self):
         self.track_count += 1
         os.system("pkill -f /usr/bin/arecord")
         time.sleep(0.1)
         file_name = self.get_track_name()
-        self.player.play("leaveMessage")
-        time.sleep(2)
         print("Recording to %s" % file_name)
         command = "/usr/bin/arecord --device=hw:1,0 --format=S16_LE --rate=44100 -c1 %s" % file_name
         args = shlex.split(command)
@@ -108,16 +106,12 @@ class Microphone():
 
 
 class Dial():
-
-    
-    def __init__(self, track_limit, track_name):
+    def __init__(self, track_limit):
         self.pulses = 0
         self.number = ""
         self.counting = True
         self.calling = False
-        self.track_name = track_name
-        self.microphone = Microphone(0, track_limit)
-        self.player = Player(track_name)
+        self.microphone = Microphone(track_limit)
 
 
     def startcalling(self):
@@ -127,19 +121,20 @@ class Dial():
         except:
              pass
         print("Pickup")
-        self.player.play("dialtone")
-
+        self.player = subprocess.Popen(["aplay", "-q", "--device=plughw:1,0", "/home/pi/1MR-Phone/media/dialtone.wav"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     def stopcalling(self):
         self.calling = False
         self.reset()
 
-
     def startcounting(self):
         self.counting = self.calling
 
-
     def stopcounting(self):
+        try:
+            self.player.kill()
+        except:
+            pass
         if self.calling:
             if self.pulses > 0:
                 if math.floor(self.pulses / 2) == 10:
@@ -150,10 +145,20 @@ class Dial():
             self.pulses = 0
             
             if self.number == "633": #If you dial "OFF" turns off Phone
+                try:
+                    self.player.kill()
+                except:
+                    pass
+                
                 self.shutdown()
                 return
             
-            if self.number == "738": #If you dial "RES" restarts
+            if self.number == "7867": #If you dial "STOP" restarts
+                try:
+                    self.player.kill()
+                except:
+                    pass
+                
                 self.restart()
                 return
             
@@ -170,7 +175,7 @@ class Dial():
                 print("start player with number = %s" % self.number)
                 
                 try:
-                    self.player.stop()
+                    self.player.kill()
                 except:
                     pass
                 
@@ -179,11 +184,10 @@ class Dial():
                 except:
                     pass
 
-                self.player.play(self.number)
+                self.player = subprocess.Popen(["aplay", "-q", "--device=plughw:1,0", "/home/pi/1MR-Phone/media/" + self.number + ".wav"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         
         print("Stop counting. Got number %s.\n" % self.number)
         self.counting = False
-
 
     def addpulse(self):
         print("addpulse")
@@ -191,14 +195,12 @@ class Dial():
             print("real addpulse")
             self.pulses += 1
 
-
     def getnumber(self):
         return self.number
 
-
     def reset(self):
         try:
-           self.player.stop()
+           self.player.kill()
            self.microphone.recordStop()
            client.send_message("/Phone/" + phone_id + "/Hangup", 51)
         except:
@@ -207,41 +209,17 @@ class Dial():
         self.pulses = 0
         self.number = ""
 
-
-    def shutdown(self):
-        self.reset()
-        print("Phone entering shutdown in 3 seconds")
-        self.player.play("shutdown")
-        time.sleep(3)
+    def shutdown():
+        subprocess.Popen(["aplay", "-q", "--device=plughw:1,0", "/home/pi/1MR-Phone/media/shutdown.mp3"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        time.sleep(5)
         subprocess.Popen(["sudo shutdown -h now"], shell=True)
         
         
-    def restart(self):
-        self.reset()
-        print("Phone rebooting in 3 seconds")
-        self.player.play("restart")
-        time.sleep(3)
+    def restart():
+        subprocess.Popen(["aplay", "-q", "--device=plughw:1,0", "/home/pi/1MR-Phone/media/restart.mp3"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        time.sleep(5)
         subprocess.Popen(["sudo reboot"], shell=True)
-
-
-class Player():
-    
-    track_name = 0
-    
-    def __init__(self, track_name=0):
-        self.track_name = track_name
-    
-    def play(self):
-        self.player = subprocess.Popen(["aplay", "-q", "--device=plughw:1,0", "/home/pi/1MR-Phone/media/" + self.track_name + ".wav"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        
-    def stop(self):
-        try:
-             self.player.play.kill()
-        except:
-            pass
-                
-    
-        
+            
 # ===== Main Script =====
 
 if __name__ == "__main__":
@@ -256,10 +234,8 @@ if __name__ == "__main__":
         except:
             pass
     
-    # Startup scripts
     if (start == 1):
         start = 0
-        
         print("Phone On")
         try:
             client.send_message("/Phone/" + phone_id + "/ON", phone_id)
@@ -270,7 +246,7 @@ if __name__ == "__main__":
     countrotary = gpiozero.DigitalInputDevice(pin_countrotary, pull_up=True, bounce_time=bouncetime_rotary)
     hook = gpiozero.DigitalInputDevice(pin_hook, pull_up=True, bounce_time=bouncetime_hook)
 
-    dial = Dial(track_limit=track_limit, track_name=track_name)
+    dial = Dial(track_limit=track_limit)
     countrotary.when_deactivated = dial.addpulse
     countrotary.when_activated = dial.addpulse
     rotaryenable.when_activated = dial.startcounting
