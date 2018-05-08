@@ -1,12 +1,12 @@
-=====
+=========
 1MR-Phone
-=====
+=========
 
 An MP3 rotary telephone
 
------
+
 Description
------
+-----------
 This module contains python 3 script to operate an interactive, rotary telephone. It plays back different audio files when different numbers are dialed. It features an OSC client to provide interactivity with audio & video elements on the same network. 
 
 It can be used without using OSC.
@@ -17,10 +17,12 @@ Version 1.1.2 was used for a performance in April 2017 with 3 phones
     
 Version 2.3 was used for a performance in April 2018 with 5 phones
 
+Version 2.5 was used for people to leave messages in May 2018 with 1 phone
 
------
+
+
 Installation
------
+------------
 
 This was designed and built on Raspian Stretch Lite
 
@@ -31,12 +33,12 @@ Dependencies;
     * python-osc
     * python3
     * python3-pip
-    * mpg123
+    * aplay
   
       
------
+
 To Install Dependencies & 1MR-Phone
------
+-----------------------------------
 Boot up the RaspberryPi and login. First update your Repositories:
 
 .. code-block:: bash
@@ -72,9 +74,9 @@ Move sp.service to systemd if you want this to run at boot. Navigate to the fold
         $ sudo systemctl enable sp.service
         $ sudo systemctl daemon-reload
         
-If you're using a USB sound card, copy the asound.conf file. You may have to edit it depending on your setup.
+I used a USB sound card, so copy the asound.conf file. You may have to edit `phone.py` depending on your setup.
         
-    .. code-block:: bash
+.. code-block:: bash
 
         $ cd /home/pi/1MR-Phone
         $ sudo cp /dev/asound.conf /etc/asound.conf
@@ -84,12 +86,12 @@ If you're using a USB sound card, copy the asound.conf file. You may have to edi
 
  
 Use
------
+---
 
 * Copy your MP3 Files to /media, rename them to digits you want to be dialed "123.mp3."
-** I prefer to use FileZilla for this. https://filezilla-project.org
+I prefer to use FileZilla for this. https://filezilla-project.org
 
-* To make changes to ip/port address, phone ID, and bouncetimes, use "config.ini."
+    * To make changes to ip/port address, phone ID, and bouncetimes, use "config.ini."
 
 * For troubleshooting, you can start and stop the service by using these commands.
 
@@ -107,7 +109,7 @@ Use
         
         
 Hardware
------
+--------
 
 * Rotary Telephone
 * Raspberry Pi w/ Memory card
@@ -123,29 +125,29 @@ Build
 2. Remove the circuit board and bells. Be sure to keep the wires leading to the rotary, as well as the handset and handset switch.
 3. Use a meter or some low voltage method to identify the wires connected.
 
-- Dial Circuit - this is active when dialing
-- Rotary Circuit - This is active when you release. Count the amount of clicks and it returns the number dialed.
-- Reciever or Hook Circuit - The contact that reacts to if the phone is "hung up."
+    - Dial Circuit - this is active when dialing
+    - Rotary Circuit - This is active when you release. Count the amount of clicks and it returns the number dialed.
+    - Reciever or Hook Circuit - The contact that reacts to if the phone is "hung up."
 
 4. Connect these three circuits to ground, and three different GPIO pins. Not all GPIO pins are created equal, and this varies based on your Raspberry Pi model. I used for my Raspberry pi 2(With BCIM numbers)
 
-- Dial = 18 (Hardware Pin 12)
-- Ground (Hardware Pin 14)
-- Rotary = 23 (Hardware Pin 16)
-- Reciever Switch = 24 (Hardware Pin 18)
+    - Dial = 18 (Hardware Pin 12)
+    - Ground (Hardware Pin 14)
+    - Rotary = 23 (Hardware Pin 16)
+    - Reciever Switch = 24 (Hardware Pin 18)
 
 5. Wire the two wires to the speaker in the Handset to 1/8" connector. You can use a USB audio card (OPTIONAL). I used Audio USB adapter from Adafruit.
 
-- Speaker Negative to Sleeve
-- Speaker Positive to Tip and Ring
+    - Speaker Negative to Sleeve
+    - Speaker Positive to Tip and Ring
 
 5. Connect to ethernet
 6. Connect to Power
 
 
-----------
+---------
 Changelog
-----------
+---------
 v1.0  - 14 Mar. 2017
     - Modified script created by https://gist.github.com/simonjenny/8d6c29db8b8a995a4d89
     - Commited V1.0
@@ -162,4 +164,14 @@ v2.0 - 21 Mar. 2018
     
 V2.3 - April 2018
     - Added stability, cleaning, and Network error checks
+
+V2.4 - April 2018
+    - Added class Microphone() for recording
+    
+V2.5 - May 2018
+    - Utilized pickle to store track_count, to prevent audio record overwrites
+    - stability fixes for Microphone()
+    - Added additional elements to config.ini
+    - Added additional dial codes for headless functionality
+    
     
