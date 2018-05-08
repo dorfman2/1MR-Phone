@@ -47,3 +47,21 @@ Audio USB adapter from Adafruit
 - Simple mixer control 'Speaker',0
 - Simple mixer control 'Mic',0
 - Simple mixer control 'Auto Gain Control',0
+
+
+Pickle
+-----
+
+import pickle
+
+.. code-block:: bash
+
+    with open('outfile', 'wb') as fp:
+        pickle.dump(itemlist, fp)
+
+To read it back:
+
+.. code-block:: bash
+
+    with open ('outfile', 'rb') as fp:
+        itemlist = pickle.load(fp)

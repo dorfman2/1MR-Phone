@@ -17,6 +17,7 @@ import time
 import configparser
 import argparse
 import shlex
+import pickle
 from pythonosc import udp_client
 
 
@@ -33,13 +34,17 @@ config.read('config.ini')
     
 # ===== Variables (called from config.ini)=====
 
-# Your phone ID, if using multiple phones
-phone_id = config.get('phone', 'id')
-osc_enable = config.get('phone', 'osc')
+
+# Phone Settings
 track_limit = int(config.get('phone', 'track_limit'))
 track_count = int(config.get('phone', 'track_start'))
+#speaker_volume = str(config.get('phone', 'speaker_volume'))
+#mic_volume = str(config.get('phone', 'mic_volume')) 
 
 
+# OSC Settings
+phone_id = config.get('osc', 'id')
+osc_enable = config.get('osc', 'osc')
 osc_ip = config.get('osc', 'ip')
 osc_port = int(config.get('osc', 'port'))
 
@@ -56,19 +61,16 @@ bouncetime_hook = float(config.get('bouncetime', 'hook'))
 
 
 subprocess.Popen(["amixer -q set Speaker 80%"], shell=True) # Sets the volume to 0db (maximum)
-subprocess.Popen(["amixer -q set Mic 25%"], shell=True)
+subprocess.Popen(["amixer -q set Mic 20%"], shell=True)
 #subprocess.Popen(["amixer -q set 'Auto Gain Control' on"], shell=True)
+
 
 
 # ===== Class Definitions =====
 
-
-
-
-
 class Microphone():
     rec_subprocess = None
-
+    
 
     def get_track_name(self):
         dir_name = "/home/pi/1MR-Phone/media"
@@ -79,9 +81,26 @@ class Microphone():
         self.base_epoch = int(time.time())
         self.track_count = track_count
         self.track_limit = track_limit
+        
+        try:
+            with open ('persistant_track_count.pickle', 'rb') as handle:     
+                self.recorded_track_count = pickle.load(handle)
+        except FileNotFoundError:
+            self.recorded_track_count = track_count
+            with open('persistant_track_count.pickle', 'wb') as handle:
+                pickle.dump(self.recorded_track_count, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        
+        if self.recorded_track_count >= track_count:
+            self.track_count = self.recorded_track_count
                 
+            
     def recordStart(self):
         self.track_count += 1
+        self.recorded_track_count = self.track_count
+        with open('persistant_track_count.pickle', 'wb') as handle:
+            pickle.dump(self.recorded_track_count, handle, protocol=pickle.HIGHEST_PROTOCOL)
+            print("Recording pickle to %s" % self.recorded_track_count)
+     
         os.system("pkill -f /usr/bin/arecord")
         time.sleep(0.1)
         file_name = self.get_track_name()
@@ -102,7 +121,14 @@ class Microphone():
 
     def recordStop(self):
         self.rec_subprocess.kill()
-        
+    
+    
+    def trackCountReset(self):
+        self.track_count = int(config.get('phone', 'track_start'))
+        self.recorded_track_count = self.track_count
+        with open('persistant_track_count.pickle', 'wb') as handle:
+            pickle.dump(self.recorded_track_count, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        print(" Track Count has been reset to %s.\n Update config file to change this default.\n" % self.recorded_track_count)
 
 
 class Dial():
@@ -120,7 +146,7 @@ class Dial():
             client.send_message("/Phone/" + phone_id + "/Pickup", 50)
         except:
              pass
-        print("Pickup")
+        print(" Pickup")
         self.player = subprocess.Popen(["aplay", "-q", "--device=plughw:1,0", "/home/pi/1MR-Phone/media/dialtone.wav"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     def stopcalling(self):
@@ -149,7 +175,7 @@ class Dial():
                     self.player.kill()
                 except:
                     pass
-                
+                print(" Phone is shutting down")
                 self.shutdown()
                 return
             
@@ -158,7 +184,7 @@ class Dial():
                     self.player.kill()
                 except:
                     pass
-                
+                print(" Phone is restarting")
                 self.restart()
                 return
             
@@ -168,12 +194,21 @@ class Dial():
                 except:
                     pass
                 self.player = subprocess.Popen(["aplay", "-q", "--device=plughw:1,0", "/home/pi/1MR-Phone/media/leave_message.wav"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                time.sleep(4)
+                time.sleep(4) # should be 4 seconds
                 self.microphone.recordStart()
                 return
             
+            if self.number == "826": #dial "TCO" Reset Track count to value specified in config.ini
+                try:
+                    self.player.kill()
+                except:
+                    pass
+                self.player = subprocess.Popen(["aplay", "-q", "--device=plughw:1,0", "/home/pi/1MR-Phone/media/track_count_reset.wav"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                self.microphone.trackCountReset()
+                return
+            
             elif os.path.isfile("/home/pi/1MR-Phone/media/" + self.number + ".wav"):
-                print("start player with number = %s" % self.number)
+                print(" Start player with number = %s\n" % self.number)
                 
                 try:
                     self.player.kill()
@@ -187,7 +222,7 @@ class Dial():
 
                 self.player = subprocess.Popen(["aplay", "-q", "--device=plughw:1,0", "/home/pi/1MR-Phone/media/" + self.number + ".wav"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         
-        print("Stop counting. Got number %s.\n" % self.number)
+        print(" Stop counting. Got number %s.\n" % self.number)
         self.counting = False
 
     def addpulse(self):
@@ -206,7 +241,7 @@ class Dial():
            client.send_message("/Phone/" + phone_id + "/Hangup", 51)
         except:
              pass
-        print ("Hangup")
+        print (" Hangup")
         self.pulses = 0
         self.number = ""
 
@@ -242,6 +277,7 @@ if __name__ == "__main__":
             client.send_message("/Phone/" + phone_id + "/ON", phone_id)
         except:
             pass
+        
         
     rotaryenable = gpiozero.DigitalInputDevice(pin_rotaryenable, pull_up=True, bounce_time=bouncetime_enable)
     countrotary = gpiozero.DigitalInputDevice(pin_countrotary, pull_up=True, bounce_time=bouncetime_rotary)
